@@ -1,0 +1,71 @@
+{
+  "71026": {
+    "name": "Elyssa Suliguin",
+    "subtitle": "My Baby",
+    "theme": "midnight",
+    "links": [
+      {
+        "name": "Instagram",
+        "type": "instagram",
+        "detail": "@elyseli.cs",
+        "url": "https://www.instagram.com/elyseli.cs/"
+      },
+      {
+        "name": "Facebook",
+        "type": "facebook",
+        "detail": "Elyssa Suliguin",
+        "url": "https://www.facebook.com/elyseli.cs"
+      }
+    ]
+  },
+  "00002": {
+    "name": "Maria Santos",
+    "subtitle": "UI/UX Designer & Content Creator",
+    "theme": "rose",
+    "links": [
+      {
+        "name": "YouTube Channel",
+        "type": "youtube",
+        "detail": "Maria Designs",
+        "url": "https://youtube.com"
+      },
+      {
+        "name": "Canva Templates",
+        "type": "canva",
+        "detail": "@mariadesigns",
+        "url": "https://canva.com"
+      },
+      {
+        "name": "Threads",
+        "type": "threads",
+        "detail": "@mariasantos",
+        "url": "https://threads.net"
+      }
+    ]
+  },
+  "00003": {
+    "name": "Alex Mercer",
+    "subtitle": "Esports Athlete & Streamer",
+    "theme": "emerald",
+    "links": [
+      {
+        "name": "League of Legends",
+        "type": "league of legends",
+        "detail": "Challenger Tier - PH",
+        "url": "https://op.gg"
+      },
+      {
+        "name": "Steam Community",
+        "type": "steam",
+        "detail": "AlexMercer_Live",
+        "url": "https://steamcommunity.com"
+      },
+      {
+        "name": "X / Twitter",
+        "type": "x",
+        "detail": "@alexmercer",
+        "url": "https://x.com"
+      }
+    ]
+  }
+}
