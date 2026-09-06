@@ -40,6 +40,13 @@ type Props = {
 // Safe type casting for clients data
 const clients = clientsData as Record<string, ClientData>;
 
+// --- 0. Static Params Generation for Vercel Routing Fix ---
+export async function generateStaticParams() {
+  return Object.keys(clients).map((id) => ({
+    id: id,
+  }));
+}
+
 // --- 1. Dynamic SEO Metadata Generation ---
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
