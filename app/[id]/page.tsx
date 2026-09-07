@@ -1,24 +1,8 @@
 import clientsData from '../../data/clients.json';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { 
-  MessageCircle, 
-  Gamepad2, 
-  Music, 
-  User, 
-  Globe, 
-  ExternalLink, 
-  Sparkles,
-  Briefcase,
-  HardDrive,
-  Palette,
-  Video,
-  AtSign,
-  X,
-  Swords
-} from 'lucide-react';
+import ProfileCardClient from './ProfileCardClient';
 
-// --- TypeScript Interfaces ---
 interface LinkItem {
   name: string;
   type: string;
@@ -29,7 +13,9 @@ interface LinkItem {
 interface ClientData {
   name: string;
   subtitle: string;
-  theme: 'indigo' | 'midnight' | 'emerald' | 'rose';
+  theme: keyof typeof themeStyles;
+  isLocked?: boolean;
+  pinCode?: string;
   links: LinkItem[];
 }
 
@@ -37,25 +23,20 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
-// Safe type casting for clients data
 const clients = clientsData as Record<string, ClientData>;
 
-// --- 0. Static Params Generation for Vercel Routing Fix ---
 export async function generateStaticParams() {
   return Object.keys(clients).map((id) => ({
     id: id,
   }));
 }
 
-// --- 1. Dynamic SEO Metadata Generation ---
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
   const client = clients[resolvedParams.id];
 
   if (!client) {
-    return {
-      title: 'Card Not Found | Mitsu Smart Card',
-    };
+    return { title: 'Card Not Found | Mitsu Smart Card' };
   }
 
   return {
@@ -68,58 +49,135 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// --- 2. Theme Styles ---
-const themeStyles: Record<string, { bg: string; border: string; accent: string; badgeBg: string }> = {
+const themeStyles = {
   indigo: {
-    bg: "from-slate-900 via-indigo-950 to-slate-900",
-    border: "border-indigo-500/30",
+    bg: "from-slate-900/90 via-indigo-950/80 to-slate-900/90",
+    border: "border-indigo-500/30 hover:border-indigo-500/50",
     accent: "text-indigo-400",
-    badgeBg: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+    glow: "bg-indigo-600/25",
+    avatarGlow: "from-indigo-500 to-blue-500",
+    badgeBg: "bg-indigo-500/10 text-indigo-400 border-indigo-500/30",
+    btnBg: "bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/25",
   },
   midnight: {
-    bg: "from-slate-900 via-purple-950 to-slate-900",
-    border: "border-purple-500/30",
+    bg: "from-slate-900/90 via-purple-950/80 to-slate-900/90",
+    border: "border-purple-500/30 hover:border-purple-500/50",
     accent: "text-purple-400",
-    badgeBg: "bg-purple-500/10 text-purple-400 border-purple-500/20"
+    glow: "bg-purple-600/25",
+    avatarGlow: "from-purple-500 to-pink-500",
+    badgeBg: "bg-purple-500/10 text-purple-400 border-purple-500/30",
+    btnBg: "bg-purple-600 hover:bg-purple-500 shadow-purple-500/25",
   },
   emerald: {
-    bg: "from-slate-900 via-emerald-950 to-slate-900",
-    border: "border-emerald-500/30",
+    bg: "from-slate-900/90 via-emerald-950/80 to-slate-900/90",
+    border: "border-emerald-500/30 hover:border-emerald-500/50",
     accent: "text-emerald-400",
-    badgeBg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+    glow: "bg-emerald-600/25",
+    avatarGlow: "from-emerald-500 to-teal-500",
+    badgeBg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+    btnBg: "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/25",
   },
   rose: {
-    bg: "from-slate-900 via-rose-950 to-slate-900",
-    border: "border-rose-500/30",
+    bg: "from-slate-900/90 via-rose-950/80 to-slate-900/90",
+    border: "border-rose-500/30 hover:border-rose-500/50",
     accent: "text-rose-400",
-    badgeBg: "bg-rose-500/10 text-rose-400 border-rose-500/20"
+    glow: "bg-rose-600/25",
+    avatarGlow: "from-rose-500 to-pink-500",
+    badgeBg: "bg-rose-500/10 text-rose-400 border-rose-500/30",
+    btnBg: "bg-rose-600 hover:bg-rose-500 shadow-rose-500/25",
+  },
+  fuchsia: {
+    bg: "from-slate-900/90 via-fuchsia-950/80 to-slate-900/90",
+    border: "border-fuchsia-500/30 hover:border-fuchsia-500/50",
+    accent: "text-fuchsia-400",
+    glow: "bg-fuchsia-600/25",
+    avatarGlow: "from-fuchsia-500 to-pink-500",
+    badgeBg: "bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/30",
+    btnBg: "bg-fuchsia-600 hover:bg-fuchsia-500 shadow-fuchsia-500/25",
+  },
+  amber: {
+    bg: "from-slate-900/90 via-amber-950/80 to-slate-900/90",
+    border: "border-amber-500/30 hover:border-amber-500/50",
+    accent: "text-amber-400",
+    glow: "bg-amber-600/25",
+    avatarGlow: "from-amber-500 to-orange-500",
+    badgeBg: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+    btnBg: "bg-amber-600 hover:bg-amber-500 shadow-amber-500/25",
+  },
+  cyan: {
+    bg: "from-slate-900/90 via-cyan-950/80 to-slate-900/90",
+    border: "border-cyan-500/30 hover:border-cyan-500/50",
+    accent: "text-cyan-400",
+    glow: "bg-cyan-600/25",
+    avatarGlow: "from-cyan-500 to-blue-500",
+    badgeBg: "bg-cyan-500/10 text-cyan-400 border-cyan-500/30",
+    btnBg: "bg-cyan-600 hover:bg-cyan-500 shadow-cyan-500/25",
+  },
+  violet: {
+    bg: "from-slate-900/90 via-violet-950/80 to-slate-900/90",
+    border: "border-violet-500/30 hover:border-violet-500/50",
+    accent: "text-violet-400",
+    glow: "bg-violet-600/25",
+    avatarGlow: "from-violet-500 to-purple-500",
+    badgeBg: "bg-violet-500/10 text-violet-400 border-violet-500/30",
+    btnBg: "bg-violet-600 hover:bg-violet-500 shadow-violet-500/25",
+  },
+  teal: {
+    bg: "from-slate-900/90 via-teal-950/80 to-slate-900/90",
+    border: "border-teal-500/30 hover:border-teal-500/50",
+    accent: "text-teal-400",
+    glow: "bg-teal-600/25",
+    avatarGlow: "from-teal-500 to-emerald-500",
+    badgeBg: "bg-teal-500/10 text-teal-400 border-teal-500/30",
+    btnBg: "bg-teal-600 hover:bg-teal-500 shadow-teal-500/25",
+  },
+  sky: {
+    bg: "from-slate-900/90 via-sky-950/80 to-slate-900/90",
+    border: "border-sky-500/30 hover:border-sky-500/50",
+    accent: "text-sky-400",
+    glow: "bg-sky-600/25",
+    avatarGlow: "from-sky-500 to-indigo-500",
+    badgeBg: "bg-sky-500/10 text-sky-400 border-sky-500/30",
+    btnBg: "bg-sky-600 hover:bg-sky-500 shadow-sky-500/25",
+  },
+  orange: {
+    bg: "from-slate-900/90 via-orange-950/80 to-slate-900/90",
+    border: "border-orange-500/30 hover:border-orange-500/50",
+    accent: "text-orange-400",
+    glow: "bg-orange-600/25",
+    avatarGlow: "from-orange-500 to-amber-500",
+    badgeBg: "bg-orange-500/10 text-orange-400 border-orange-500/30",
+    btnBg: "bg-orange-600 hover:bg-orange-500 shadow-orange-500/25",
+  },
+  lime: {
+    bg: "from-slate-900/90 via-lime-950/80 to-slate-900/90",
+    border: "border-lime-500/30 hover:border-lime-500/50",
+    accent: "text-lime-400",
+    glow: "bg-lime-600/25",
+    avatarGlow: "from-lime-500 to-emerald-500",
+    badgeBg: "bg-lime-500/10 text-lime-400 border-lime-500/30",
+    btnBg: "bg-lime-600 hover:bg-lime-500 shadow-lime-500/25",
+  },
+  blue: {
+    bg: "from-slate-900/90 via-blue-950/80 to-slate-900/90",
+    border: "border-blue-500/30 hover:border-blue-500/50",
+    accent: "text-blue-400",
+    glow: "bg-blue-600/25",
+    avatarGlow: "from-blue-500 to-cyan-500",
+    badgeBg: "bg-blue-500/10 text-blue-400 border-blue-500/30",
+    btnBg: "bg-blue-600 hover:bg-blue-500 shadow-blue-500/25",
+  },
+  sunset: {
+    bg: "from-slate-900/90 via-red-950/80 to-slate-900/90",
+    border: "border-red-500/30 hover:border-red-500/50",
+    accent: "text-red-400",
+    glow: "bg-red-600/25",
+    avatarGlow: "from-red-500 to-rose-500",
+    badgeBg: "bg-red-500/10 text-red-400 border-red-500/30",
+    btnBg: "bg-red-600 hover:bg-red-500 shadow-red-500/25",
   }
 };
 
-// --- 3. Icon Selector Helper ---
-const getIcon = (type: string) => {
-  switch (type.toLowerCase()) {
-    case 'instagram': return <User size={18} className="text-pink-400" />;
-    case 'facebook': return <MessageCircle size={18} className="text-blue-400" />;
-    case 'tiktok': return <Globe size={18} className="text-cyan-400" />;
-    case 'valorant': return <Gamepad2 size={18} className="text-red-400" />;
-    case 'league of legends':
-    case 'lol': return <Swords size={18} className="text-amber-400" />;
-    case 'steam': return <Gamepad2 size={18} className="text-indigo-400" />;
-    case 'gdrive':
-    case 'google drive': return <HardDrive size={18} className="text-yellow-400" />;
-    case 'upwork': return <Briefcase size={18} className="text-emerald-400" />;
-    case 'canva': return <Palette size={18} className="text-sky-400" />;
-    case 'youtube': return <Video size={18} className="text-red-500" />;
-    case 'spotify': return <Music size={18} className="text-green-400" />;
-    case 'threads': return <AtSign size={18} className="text-slate-200" />;
-    case 'x':
-    case 'twitter': return <X size={18} className="text-sky-400" />;
-    default: return <ExternalLink size={18} className="text-slate-400" />;
-  }
-};
-
-// --- 4. Main Page Component ---
 export default async function ClientProfilePage({ params }: Props) {
   const resolvedParams = await params;
   const client = clients[resolvedParams.id];
@@ -128,10 +186,8 @@ export default async function ClientProfilePage({ params }: Props) {
     notFound();
   }
 
-  // Uses client theme or defaults to midnight
   const theme = themeStyles[client.theme] || themeStyles.midnight;
 
-  // Safe avatar initials logic
   const initials = client.name
     .trim()
     .split(/\s+/)
@@ -139,65 +195,24 @@ export default async function ClientProfilePage({ params }: Props) {
     .join("")
     .toUpperCase();
 
+  const vcardContent = `BEGIN:VCARD\nVERSION:3.0\nN:;${client.name};;;\nFN:${client.name}\nTITLE:${client.subtitle}\nEND:VCARD`;
+  const vcardDataUri = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcardContent)}`;
+
   return (
-    <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Background Grid Accent */}
+    <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Grid Accent Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
-      {/* Main Profile Card */}
-      <div className={`w-full max-w-sm bg-gradient-to-br ${theme.bg} border ${theme.border} rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center backdrop-blur-xl relative z-10`}>
-        
-        {/* Verification Badge */}
-        <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs mb-5 ${theme.badgeBg}`}>
-          <Sparkles size={14} className="animate-pulse" /> Verified Mitsu Smart Card
-        </div>
+      {/* Ambient Glow Aura */}
+      <div className={`absolute w-[340px] h-[340px] ${theme.glow} rounded-full blur-[120px] pointer-events-none transition-all duration-500`} />
 
-        {/* Avatar / Initials */}
-        <div className="w-20 h-20 rounded-full bg-slate-800/80 p-1 mb-4 shadow-inner flex items-center justify-center border border-slate-700/50">
-          <span className={`text-2xl font-bold ${theme.accent}`}>
-            {initials}
-          </span>
-        </div>
-
-        {/* Name & Subtitle */}
-        <h1 className="text-xl font-bold text-slate-100 mb-1">{client.name}</h1>
-        <p className={`text-xs font-medium ${theme.accent} mb-6`}>{client.subtitle}</p>
-
-        {/* Links Container */}
-        <div className="w-full flex flex-col gap-3">
-          {client.links.map((link: LinkItem, idx: number) => (
-            <a
-              key={idx}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center justify-between p-3.5 rounded-2xl bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 hover:border-slate-700 transition-all duration-200"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-slate-800/80">
-                  {getIcon(link.type)}
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-semibold text-slate-200 group-hover:text-white transition-colors">
-                    {link.name}
-                  </p>
-                  <p className="text-xs text-slate-400">{link.detail}</p>
-                </div>
-              </div>
-              <span className="text-slate-500 group-hover:text-slate-300 transition-colors text-xs font-medium">
-                Visit →
-              </span>
-            </a>
-          ))}
-        </div>
-
-        {/* Footer */}
-        <div className="mt-8 pt-4 border-t border-slate-800/60 w-full text-center">
-          <p className="text-[10px] text-slate-500 tracking-wider uppercase font-semibold">
-            Powered by Mitsu Smart Card
-          </p>
-        </div>
-      </div>
+      {/* Client Interactive Component */}
+      <ProfileCardClient 
+        client={client} 
+        theme={theme} 
+        initials={initials} 
+        vcardDataUri={vcardDataUri} 
+      />
     </main>
   );
 }

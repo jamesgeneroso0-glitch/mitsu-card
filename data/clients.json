@@ -2,7 +2,9 @@
   "71026": {
     "name": "Elyssa Suliguin",
     "subtitle": "My Baby",
-    "theme": "midnight",
+    "theme": "sky",
+    "isLocked": true,
+    "pinCode": "4321",
     "links": [
       {
         "name": "Instagram",
@@ -19,52 +21,29 @@
     ]
   },
   "61112": {
-    "name": "Maria Santos",
-    "subtitle": "UI/UX Designer & Content Creator",
-    "theme": "rose",
+    "name": "James Generoso",
+    "subtitle": "Me",
+    "theme": "amber",
+    "isLocked": true,
+    "pinCode": "1234",
     "links": [
       {
-        "name": "YouTube Channel",
-        "type": "youtube",
-        "detail": "Maria Designs",
-        "url": "https://youtube.com"
+        "name": "Instagram",
+        "type": "instagram",
+        "detail": "@mitsu.jv",
+        "url": "https://www.instagram.com/mitsu.jv/"
       },
       {
-        "name": "Canva Templates",
-        "type": "canva",
-        "detail": "@mariadesigns",
-        "url": "https://canva.com"
+        "name": "Facebook",
+        "type": "facebook",
+        "detail": "James Generoso",
+        "url": "https://www.facebook.com/argopo12/"
       },
       {
-        "name": "Threads",
-        "type": "threads",
-        "detail": "@mariasantos",
-        "url": "https://threads.net"
-      }
-    ]
-  },
-  "00003": {
-    "name": "Alex Mercer",
-    "subtitle": "Esports Athlete & Streamer",
-    "theme": "emerald",
-    "links": [
-      {
-        "name": "League of Legends",
-        "type": "league of legends",
-        "detail": "Challenger Tier - PH",
-        "url": "https://op.gg"
-      },
-      {
-        "name": "Steam Community",
-        "type": "steam",
-        "detail": "AlexMercer_Live",
-        "url": "https://steamcommunity.com"
-      },
-      {
-        "name": "X / Twitter",
-        "type": "x",
-        "detail": "@alexmercer",
-        "url": "https://x.com"
+        "name":"Twitter",
+        "type":"twitter",
+        "detail":"@mitsu.kzrw",
+        "url":"https://www.twitter.com/mitsu.kzrw/"
       }
     ]
   }
