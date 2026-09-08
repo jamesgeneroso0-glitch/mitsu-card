@@ -40,6 +40,27 @@
       }
     ]
   },
+  "62778": {
+    "name": "Kenji Generoso",
+    "subtitle": "Student",
+    "theme": "cyber",
+    "isLocked": true,
+    "pinCode": "0535",
+    "links": [
+      {
+        "name": "Instagram",
+        "type": "instagram",
+        "detail": "@kc_gnrs",
+        "url": "https://www.instagram.com/kc_gnrs"
+      },
+      {
+        "name": "Facebook",
+        "type": "facebook",
+        "detail": "Kenji Generoso",
+        "url": "https://www.facebook.com/kcgnrs"
+      }
+    ]
+  },
   "71026": {
     "name": "Elyssa Suliguin",
     "subtitle": "My Baby",
