@@ -30,7 +30,7 @@ export async function POST(request: Request) {
       }
     );
 
-    let clients = {};
+    let clients: Record<string, any> = {};
     let currentSha = '';
 
     if (getFileResponse.ok) {
