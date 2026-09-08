@@ -111,5 +111,21 @@
         "url": "https://www.facebook.com/argopo12"
       }
     ]
+  },
+  "EBYSriCzjq": {
+    "name": "James Generoso",
+    "subtitle": "Student",
+    "avatarUrl": "",
+    "theme": "monochrome",
+    "isLocked": false,
+    "pinCode": "",
+    "links": [
+      {
+        "name": "Facebook",
+        "type": "website",
+        "detail": "James Generoso",
+        "url": "https://www.facebook.com/argopo12"
+      }
+    ]
   }
 }
