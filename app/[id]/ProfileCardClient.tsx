@@ -48,18 +48,14 @@ const getIcon = (type: string) => {
 };
 
 const unlockedVariants = {
-  hidden: { opacity: 0, y: -12 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.25, ease: "easeInOut" }
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { duration: 0.3, ease: "easeInOut" } 
   },
-  exit: {
-    opacity: 0,
-    y: -8,
-    transition: { duration: 0.18, ease: "easeInOut" }
-  }
-};
+  exit: { opacity: 0, y: 20, transition: { duration: 0.2, ease: "easeInOut" } }
+} as const;
 
 const linksListVariants = {
   hidden: { opacity: 0 },
@@ -73,13 +69,13 @@ const linksListVariants = {
 };
 
 const linkItemVariants = {
-  hidden: { opacity: 0, y: -18 },
+  hidden: { opacity: 0, y: 10 },
   visible: { 
     opacity: 1, 
-    y: 0,
-    transition: { duration: 0.3, ease: [0.25, 1, 0.5, 1] } 
+    y: 0, 
+    transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] } 
   }
-};
+} as const;;
 
 // Modal BackDrop & Container Animations
 const modalBackdropVariants = {
@@ -102,7 +98,7 @@ const modalContentVariants = {
     y: 20,
     transition: { duration: 0.15 }
   }
-};
+} as const;
 
 export default function ProfileCardClient({ 
   client, 
