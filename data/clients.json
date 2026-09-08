@@ -80,5 +80,20 @@
         "url": "https://www.facebook.com/elyseli.cs"
       }
     ]
+  },
+  "92237": {
+    "name": "Mye Generoso",
+    "subtitle": "Mother",
+    "theme": "aurora",
+    "isLocked": true,
+    "pinCode": "8527",
+    "links": [
+      {
+        "name": "Facebook",
+        "type": "facebook",
+        "detail": "Mye Generoso",
+        "url": "https://www.facebook.com/share/1GhUb34Knn/"
+      }
+    ]
   }
 }
