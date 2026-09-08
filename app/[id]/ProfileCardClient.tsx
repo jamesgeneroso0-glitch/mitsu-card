@@ -62,8 +62,8 @@ const linksListVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.05
+      staggerChildren: 0.08,
+      delayChildren: 0.03
     }
   }
 };
@@ -75,9 +75,8 @@ const linkItemVariants = {
     y: 0, 
     transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] } 
   }
-} as const;;
+} as const;
 
-// Modal BackDrop & Container Animations
 const modalBackdropVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1 },
@@ -158,7 +157,7 @@ export default function ProfileCardClient({
   const isContentVisible = !isCardLocked || isUnlockedByPin;
 
   return (
-    <div className={`w-full max-w-sm bg-slate-950/90 border ${theme.border} rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center relative z-10 transform-gpu`}>
+    <div className={`w-full max-w-sm bg-slate-950/90 border ${theme.border} rounded-3xl p-5 sm:p-6 shadow-2xl flex flex-col items-center text-center relative z-10 h-auto my-auto transform-gpu`}>
       
       {/* Header Controls */}
       <div className="w-full flex items-center justify-between mb-4">
@@ -171,7 +170,7 @@ export default function ProfileCardClient({
           <span>{isCardLocked && !isUnlockedByPin ? 'Locked' : 'Unlocked'}</span>
         </div>
 
-        {/* Share Button Animation */}
+        {/* Share Button */}
         <motion.button 
           whileTap={{ scale: 0.95 }}
           onClick={handleShare}
@@ -228,7 +227,6 @@ export default function ProfileCardClient({
               />
               {errorMsg && <p className="text-[10px] text-rose-400 font-medium">Incorrect PIN. Please try again.</p>}
               
-              {/* Button Animation pareho sa Share button */}
               <motion.button 
                 whileTap={{ scale: 0.95 }}
                 type="submit"
@@ -245,13 +243,13 @@ export default function ProfileCardClient({
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="w-full flex flex-col items-center transform-gpu [will-change:transform,opacity]"
+            className="w-full flex flex-col items-center transform-gpu"
           >
             {/* Trigger Button para sa Pop-up Modal */}
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsSaveModalOpen(true)}
-              className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-white transition-colors shadow-lg mb-5 cursor-pointer select-none ${theme.btnBg}`}
+              className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-white transition-colors shadow-lg mb-4 cursor-pointer select-none ${theme.btnBg}`}
             >
               <UserPlus size={16} />
               <span>Save Contact</span>
@@ -262,7 +260,7 @@ export default function ProfileCardClient({
               variants={linksListVariants}
               initial="hidden"
               animate="visible"
-              className="w-full flex flex-col gap-3"
+              className="w-full flex flex-col gap-2.5"
             >
               {client.links.map((link: LinkItem, idx: number) => (
                 <motion.a
@@ -272,7 +270,7 @@ export default function ProfileCardClient({
                   rel="noopener noreferrer"
                   variants={linkItemVariants}
                   whileTap={{ scale: 0.98 }}
-                  className="group flex items-center justify-between p-3.5 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-colors shadow-sm transform-gpu"
+                  className="group flex items-center justify-between p-3 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-colors shadow-sm transform-gpu"
                 >
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-xl bg-slate-800 border border-slate-700/50 group-hover:border-slate-600 transition-colors">
@@ -299,7 +297,6 @@ export default function ProfileCardClient({
       <AnimatePresence>
         {isSaveModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Backdrop Layer */}
             <motion.div 
               variants={modalBackdropVariants}
               initial="hidden"
@@ -309,7 +306,6 @@ export default function ProfileCardClient({
               className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
             />
 
-            {/* Modal Box */}
             <motion.div
               variants={modalContentVariants}
               initial="hidden"
@@ -317,7 +313,6 @@ export default function ProfileCardClient({
               exit="exit"
               className="relative w-full max-w-xs bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center z-10"
             >
-              {/* Close Button */}
               <motion.button 
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsSaveModalOpen(false)}
@@ -337,7 +332,6 @@ export default function ProfileCardClient({
                 Scan the QR code directly or download the contact file to your device.
               </p>
 
-              {/* QR Code Section */}
               <div className="p-3 bg-white rounded-2xl shadow-inner mb-5 flex items-center justify-center">
                 <QRCodeSVG 
                   value={vcardDataUri} 
@@ -346,7 +340,6 @@ export default function ProfileCardClient({
                 />
               </div>
 
-              {/* Download VCF Action */}
               <motion.a
                 whileTap={{ scale: 0.95 }}
                 href={vcardDataUri}
@@ -363,7 +356,7 @@ export default function ProfileCardClient({
       </AnimatePresence>
 
       {/* Footer */}
-      <div className="mt-7 pt-4 border-t border-slate-800/60 w-full text-center">
+      <div className="mt-6 pt-4 border-t border-slate-800/60 w-full text-center">
         <p className="text-[10px] text-slate-500 tracking-wider uppercase font-semibold">
           Powered by Mitsu Smart Card
         </p>

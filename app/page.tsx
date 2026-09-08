@@ -17,25 +17,25 @@ export default function HomePage() {
   const facebookUrl = "https://www.facebook.com/your-facebook-page";
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-between p-6 relative overflow-hidden">
+    <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden">
       {/* Background Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
       {/* Hero Section */}
-      <div className="max-w-2xl text-center mt-16 relative z-10 flex flex-col items-center">
+      <div className="max-w-2xl text-center mt-4 sm:mt-12 relative z-10 flex flex-col items-center">
         
         {/* Badge */}
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 text-xs font-medium mb-6 drop-shadow-[0_2px_8px_rgba(168,85,247,0.2)]"
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 text-xs font-medium mb-5 drop-shadow-[0_2px_8px_rgba(168,85,247,0.2)]"
         >
           <Sparkles size={14} className="animate-pulse" /> Next-Gen NFC Smart Cards
         </motion.div>
         
         {/* Main Title - Word by Word Staggered Downward Animation */}
-        <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-100 mb-4 flex flex-wrap justify-center gap-x-3 gap-y-1">
+        <h1 className="text-3xl sm:text-6xl font-extrabold tracking-tight text-slate-100 mb-4 flex flex-wrap justify-center gap-x-2 sm:gap-x-3 gap-y-1">
           {titleWords.map((word, index) => (
             <motion.span
               key={`title-${index}`}
@@ -65,7 +65,7 @@ export default function HomePage() {
         </h1>
 
         {/* Subtitle - Word by Word Staggered Downward Animation */}
-        <p className="text-slate-400 text-base sm:text-lg mb-8 max-w-lg flex flex-wrap justify-center gap-x-1.5 gap-y-0.5">
+        <p className="text-slate-400 text-sm sm:text-lg mb-6 sm:mb-8 max-w-lg flex flex-wrap justify-center gap-x-1.5 gap-y-0.5">
           {subtitleWords.map((word, index) => (
             <motion.span
               key={`sub-${index}`}
@@ -112,7 +112,7 @@ export default function HomePage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.4, delay: 0.3 }}
-        className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl w-full my-12 relative z-10"
+        className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 max-w-3xl w-full my-8 sm:my-12 relative z-10"
       >
         <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 text-center transition-all duration-200 hover:border-purple-500/40">
           <Smartphone size={24} className="text-purple-400 mx-auto mb-2" />
@@ -134,7 +134,7 @@ export default function HomePage() {
       </motion.div>
 
       {/* Footer */}
-      <footer className="text-center relative z-10 mb-4 opacity-80">
+      <footer className="text-center relative z-10 my-2 opacity-80">
         <p className="text-xs text-slate-500">© {new Date().getFullYear()} Mitsu Smart Card. All rights reserved.</p>
       </footer>
     </main>

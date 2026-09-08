@@ -175,6 +175,61 @@ const themeStyles = {
     avatarGlow: "from-red-500 to-rose-500",
     badgeBg: "bg-red-500/10 text-red-400 border-red-500/30",
     btnBg: "bg-red-600 hover:bg-red-500 shadow-red-500/25",
+  },
+  // --- 6 BAGONG UNISEX THEMES ---
+  slate: {
+    bg: "from-slate-950 via-slate-900 to-slate-950",
+    border: "border-slate-600/40 hover:border-slate-500/60",
+    accent: "text-slate-300",
+    glow: "bg-slate-500/20",
+    avatarGlow: "from-slate-400 to-slate-600",
+    badgeBg: "bg-slate-500/10 text-slate-300 border-slate-500/30",
+    btnBg: "bg-slate-700 hover:bg-slate-600 shadow-slate-600/25",
+  },
+  obsidian: {
+    bg: "from-black via-zinc-950 to-black",
+    border: "border-zinc-700/50 hover:border-zinc-500/70",
+    accent: "text-zinc-200",
+    glow: "bg-zinc-500/20",
+    avatarGlow: "from-zinc-400 to-zinc-700",
+    badgeBg: "bg-zinc-800/50 text-zinc-300 border-zinc-600/40",
+    btnBg: "bg-zinc-800 hover:bg-zinc-700 shadow-zinc-700/30 border border-zinc-600/50",
+  },
+  aurora: {
+    bg: "from-slate-950 via-teal-950/60 to-purple-950/60",
+    border: "border-teal-400/30 hover:border-purple-400/50",
+    accent: "text-teal-300",
+    glow: "bg-teal-500/20",
+    avatarGlow: "from-teal-400 to-purple-500",
+    badgeBg: "bg-teal-500/10 text-teal-300 border-teal-400/30",
+    btnBg: "bg-gradient-to-r from-teal-600 to-purple-600 hover:from-teal-500 hover:to-purple-500 shadow-teal-500/20",
+  },
+  cyber: {
+    bg: "from-slate-950 via-yellow-950/40 to-slate-950",
+    border: "border-yellow-500/40 hover:border-cyan-400/60",
+    accent: "text-yellow-400",
+    glow: "bg-yellow-500/20",
+    avatarGlow: "from-yellow-400 to-cyan-400",
+    badgeBg: "bg-yellow-500/10 text-yellow-400 border-yellow-500/30",
+    btnBg: "bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold shadow-yellow-500/25",
+  },
+  monochrome: {
+    bg: "from-neutral-900 via-neutral-950 to-neutral-900",
+    border: "border-neutral-700 hover:border-neutral-500",
+    accent: "text-neutral-100",
+    glow: "bg-neutral-500/15",
+    avatarGlow: "from-neutral-300 to-neutral-600",
+    badgeBg: "bg-neutral-800 text-neutral-200 border-neutral-600",
+    btnBg: "bg-neutral-200 hover:bg-white text-neutral-950 font-bold shadow-neutral-500/20",
+  },
+  coffee: {
+    bg: "from-stone-950 via-stone-900 to-stone-950",
+    border: "border-amber-700/40 hover:border-amber-600/60",
+    accent: "text-amber-200",
+    glow: "bg-amber-800/20",
+    avatarGlow: "from-amber-600 to-stone-500",
+    badgeBg: "bg-amber-900/30 text-amber-200 border-amber-700/40",
+    btnBg: "bg-amber-800 hover:bg-amber-700 shadow-amber-900/30",
   }
 };
 
@@ -199,7 +254,7 @@ export default async function ClientProfilePage({ params }: Props) {
   const vcardDataUri = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcardContent)}`;
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center py-6 px-4 relative overflow-x-hidden">
       {/* Background Grid Accent Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
