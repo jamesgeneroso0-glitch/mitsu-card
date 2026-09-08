@@ -95,5 +95,21 @@
         "url": "https://www.facebook.com/share/1GhUb34Knn/"
       }
     ]
+  },
+  "xEI9RxrIkc": {
+    "name": "James Generoso ",
+    "subtitle": "Student",
+    "avatarUrl": "",
+    "theme": "cyber",
+    "isLocked": false,
+    "pinCode": "",
+    "links": [
+      {
+        "name": "Facebook",
+        "type": "website",
+        "detail": "James Generoso",
+        "url": "https://www.facebook.com/argopo12"
+      }
+    ]
   }
 }
