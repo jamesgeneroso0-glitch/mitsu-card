@@ -78,7 +78,7 @@ export default function HomePage() {
         {/* Main Title */}
         <ScrollReveal delay={150}>
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-tight text-slate-100 mb-4">
-            Connect effortlessly with <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(192,38,211,0.35)]">Mitsu Card</span>
+            Connect effortlessly with <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(192,38,211,0.35)]">Mitsu Smart Card</span>
           </h1>
         </ScrollReveal>
 
