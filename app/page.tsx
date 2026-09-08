@@ -57,7 +57,7 @@ function ScrollReveal({
 }
 
 export default function HomePage() {
-  const productUrl = "https://www.mitsu.cards";
+  const productUrl = "https://www.mitsu.cards/product";
 
   return (
     <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-between p-4 sm:p-8 relative overflow-hidden">
