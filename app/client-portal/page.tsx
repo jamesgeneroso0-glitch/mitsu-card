@@ -363,14 +363,14 @@ export default function ClientPortalPage() {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullPayload, null, 2));
         const downloadAnchor = document.createElement('a');
         downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `mitsu-card-${clientId}.json`);
+        downloadAnchor.setAttribute("download", `${clientId}.json`);
         document.body.appendChild(downloadAnchor);
         downloadAnchor.click();
         downloadAnchor.remove();
 
-        // 2. Display success message with reminder to save ID and email the downloaded json file
+        // 2. Display success message formatted on two separate lines
         const pinReminder = isLocked ? ` | PIN Code: ${pinCode}` : '';
-        setMessage(`✨ Success! Na-download na ang iyong mitsu-card-${clientId}.json file. Tandaan at itabi ang iyong Card ID: ${clientId}${pinReminder}. Pakipasa o paki-email ang na-download na .json file sa akin para sa pag-setup ng iyong profile card!`);
+        setMessage(`Success! Your configuration file ${clientId}.json has been downloaded.\n\nPlease keep note of your Card ID: ${clientId}${pinReminder}. Send or email the downloaded .json file to complete your profile card setup!`);
       } else {
         setMessage(`Error: ${result.error}`);
       }
@@ -388,29 +388,29 @@ export default function ClientPortalPage() {
     : 'JD';
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center py-10 px-4 relative overflow-x-hidden">
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center py-6 px-3 sm:py-10 sm:px-4 relative overflow-x-hidden">
         
       {/* Background Grid Accent Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
       {/* Ambient Glow Aura */}
-      <div className={`absolute w-[340px] h-[340px] ${currentTheme.glow} rounded-full blur-[120px] pointer-events-none transition-all duration-500`} />
+      <div className={`absolute w-[280px] sm:w-[340px] h-[280px] sm:h-[340px] ${currentTheme.glow} rounded-full blur-[120px] pointer-events-none transition-all duration-500`} />
 
-      <div className="w-full max-w-5xl bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 md:p-10 shadow-2xl flex flex-col lg:flex-row gap-10 relative z-10 animate-in fade-in zoom-in-95 duration-500">
-          
+      <div className="w-full max-w-5xl bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 sm:p-6 md:p-10 shadow-2xl flex flex-col lg:flex-row gap-8 lg:gap-10 relative z-10 animate-in fade-in zoom-in-95 duration-500">
+        
         {/* FORM SECTION (Left) */}
-        <div className="flex-1 min-w-[300px]">
+        <div className="flex-1 w-full min-w-0">
           <div className="flex justify-between items-start mb-6">
             <div>
               <span className="text-xs uppercase tracking-widest text-indigo-400 font-semibold">Client Portal</span>
-              <h2 className="text-2xl font-bold mt-1">Mitsu Smart Card Setup</h2>
-              <p className="text-sm text-slate-400 mt-1">Customize your interactive profile card.</p>
+              <h2 className="text-xl sm:text-2xl font-bold mt-1">Mitsu Smart Card Setup</h2>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1">Customize your interactive profile card.</p>
             </div>
             <button 
               type="button" 
               onClick={handleReset} 
               title="Reset Form"
-              className="p-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl transition-all cursor-pointer"
+              className="p-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl transition-all cursor-pointer shrink-0"
             >
               <RotateCcw size={16} />
             </button>
@@ -509,14 +509,14 @@ export default function ClientPortalPage() {
                   checked={isLocked} 
                   onChange={(e) => setIsLocked(e.target.checked)} 
                   id="lockCheck"
-                  className="w-4 h-4 accent-indigo-500 rounded cursor-pointer"
+                  className="w-4 h-4 accent-indigo-500 rounded cursor-pointer shrink-0"
                 />
                 <label htmlFor="lockCheck" className="cursor-pointer text-sm font-medium text-slate-200">Lock Card with PIN (Privacy Mode)</label>
               </div>
-              <p className="text-xs text-slate-400 mt-1 pl-7">Enable this option if you want to restrict profile access using a secure PIN code.</p>
+              <p className="text-xs text-slate-400 mt-1 sm:pl-7">Enable this option if you want to restrict profile access using a secure PIN code.</p>
 
               {isLocked && (
-                <div className="mt-3 pl-7">
+                <div className="mt-3 sm:pl-7">
                   <label className="text-xs text-slate-300">Enter PIN Code:</label>
                   <input 
                     type="password" 
@@ -596,7 +596,7 @@ export default function ClientPortalPage() {
             </div>
 
             {message && (
-              <p className={`text-center text-sm font-medium mt-2 leading-relaxed ${message.includes('Success!') ? 'text-emerald-400 bg-emerald-950/40 p-4 rounded-xl border border-emerald-500/30 shadow-md' : 'text-rose-400'}`}>
+              <p className={`text-center text-xs sm:text-sm font-medium mt-2 leading-relaxed whitespace-pre-line ${message.startsWith('Success!') ? 'text-emerald-400 bg-emerald-950/40 p-4 rounded-xl border border-emerald-500/30 shadow-md' : 'text-rose-400'}`}>
                 {message}
               </p>
             )}
@@ -604,13 +604,15 @@ export default function ClientPortalPage() {
         </div>
 
         {/* LIVE PREVIEW SECTION (Right) */}
-        <div className="flex-1 min-w-[300px] flex flex-col items-center justify-center bg-slate-950/40 p-6 rounded-2xl border border-slate-800/60 relative">
-          <div className="absolute top-4 left-6 text-xs uppercase tracking-widest text-slate-500 font-bold">
+        <div className="flex-1 w-full min-w-0 flex flex-col items-center justify-start lg:justify-center bg-slate-950/40 p-4 sm:p-6 rounded-2xl border border-slate-800/60">
+          
+          {/* Header Label - Kept in flex flow to avoid overlap */}
+          <div className="w-full text-center lg:text-left text-xs uppercase tracking-widest text-slate-500 font-bold mb-4">
             Live Official Preview
           </div>
               
           {/* Profile Card Mockup */}
-          <div className={`w-full max-w-[340px] bg-gradient-to-b ${currentTheme.bg} border ${currentTheme.border} rounded-3xl p-6 text-center shadow-2xl relative overflow-hidden backdrop-blur-xl transition-all duration-500 my-auto`}>
+          <div className={`w-full max-w-[340px] bg-gradient-to-b ${currentTheme.bg} border ${currentTheme.border} rounded-3xl p-5 sm:p-6 text-center shadow-2xl relative overflow-hidden backdrop-blur-xl transition-all duration-500 my-auto`}>
               
             <div className="flex justify-between items-center mb-6">
               <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${isLocked ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'}`}>
@@ -631,8 +633,8 @@ export default function ClientPortalPage() {
               )}
             </div>
 
-            <h1 className="text-xl font-bold text-white tracking-tight">{name || 'John Doe'}</h1>
-            <p className={`text-sm font-medium ${currentTheme.accent} mt-1`}>{subtitle || 'Me'}</p>
+            <h1 className="text-xl font-bold text-white tracking-tight break-words">{name || 'John Doe'}</h1>
+            <p className={`text-sm font-medium ${currentTheme.accent} mt-1 break-words`}>{subtitle || 'Me'}</p>
 
             <div className="mt-6">
               <div className={`w-full py-3 rounded-xl text-sm font-semibold ${currentTheme.btnBg} shadow-md flex items-center justify-center gap-2 transition-all`}>
@@ -643,11 +645,11 @@ export default function ClientPortalPage() {
             <div className="mt-6 flex flex-col gap-3 text-left">
               {links.map((l, i) => (
                 <div key={i} className="w-full p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-sm text-white flex items-center justify-between shadow-inner transition-all hover:bg-slate-900">
-                  <div className="flex items-center gap-3 truncate">
+                  <div className="flex items-center gap-3 truncate min-w-0">
                     <div className="w-9 h-9 rounded-lg bg-slate-800/80 border border-slate-700/50 flex items-center justify-center text-xs shrink-0 text-slate-300">
                       {getIcon(l.name)}
                     </div>
-                    <div className="truncate">
+                    <div className="truncate min-w-0">
                       <div className="font-semibold text-white truncate">{l.name || `Link Item #${i + 1}`}</div>
                       <div className="text-xs text-slate-400 truncate">{l.detail || '@username'}</div>
                     </div>
