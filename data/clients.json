@@ -1,21 +1,15 @@
 {
-  "71026": {
-    "name": "Elyssa Suliguin",
-    "subtitle": "My Baby",
-    "theme": "sky",
+  "54321": {
+    "name": "James Generoso",
+    "subtitle": "Student",
+    "theme": "amber",
     "isLocked": false,
     "links": [
       {
-        "name": "Instagram",
-        "type": "instagram",
-        "detail": "@elyseli.cs",
-        "url": "https://www.instagram.com/elyseli.cs/"
-      },
-      {
         "name": "Facebook",
         "type": "facebook",
-        "detail": "Elyssa Suliguin",
-        "url": "https://www.facebook.com/elyseli.cs"
+        "detail": "James Generoso",
+        "url": "https://www.facebook.com/argopo12/"
       }
     ]
   },
@@ -39,10 +33,30 @@
         "url": "https://www.facebook.com/argopo12/"
       },
       {
-        "name":"Twitter",
-        "type":"twitter",
-        "detail":"@mitsu.kzrw",
-        "url":"https://www.twitter.com/mitsu.kzrw/"
+        "name": "Twitter",
+        "type": "twitter",
+        "detail": "@mitsu.kzrw",
+        "url": "https://www.twitter.com/mitsu.kzrw/"
+      }
+    ]
+  },
+  "71026": {
+    "name": "Elyssa Suliguin",
+    "subtitle": "My Baby",
+    "theme": "sky",
+    "isLocked": false,
+    "links": [
+      {
+        "name": "Instagram",
+        "type": "instagram",
+        "detail": "@elyseli.cs",
+        "url": "https://www.instagram.com/elyseli.cs/"
+      },
+      {
+        "name": "Facebook",
+        "type": "facebook",
+        "detail": "Elyssa Suliguin",
+        "url": "https://www.facebook.com/elyseli.cs"
       }
     ]
   }
