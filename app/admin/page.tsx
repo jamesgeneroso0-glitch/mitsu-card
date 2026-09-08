@@ -7,6 +7,9 @@ export default function AdminPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+  // Permanent storage ng credentials para hindi mawala pagkatapos mag-login
+  const [savedAuth, setSavedAuth] = useState({ username: '', password: '' });
+
   const [clientId, setClientId] = useState('');
   const [name, setName] = useState('');
   const [subtitle, setSubtitle] = useState('');
@@ -24,6 +27,7 @@ export default function AdminPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (username && password) {
+      setSavedAuth({ username, password });
       setIsAuthenticated(true);
     }
   };
@@ -61,8 +65,8 @@ export default function AdminPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username,
-          password,
+          username: savedAuth.username,
+          password: savedAuth.password,
           clientId,
           clientData: clientPayload,
         }),
