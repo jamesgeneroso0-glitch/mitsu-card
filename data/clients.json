@@ -127,5 +127,21 @@
         "url": "https://www.facebook.com/argopo12"
       }
     ]
+  },
+  "28C6SFJNEE": {
+    "name": "James Generoso",
+    "subtitle": "Owner",
+    "avatarUrl": "https://cdn.phototourl.com/free/2026-09-08-d3ecec7a-85b7-456e-9de5-e187f0d0236e.png",
+    "theme": "Slate",
+    "isLocked": true,
+    "pinCode": "3214",
+    "links": [
+      {
+        "name": "Facebook",
+        "type": "facebook",
+        "detail": "James Generoso",
+        "url": "https://www.facebook.com/argopo12"
+      }
+    ]
   }
 }
