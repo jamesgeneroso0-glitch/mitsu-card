@@ -3,216 +3,264 @@
 import { useState } from 'react';
 
 export default function AdminPage() {
-  const [authenticated, setAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
 
-  // Form states
-  const [slug, setSlug] = useState('');
+  const [clientId, setClientId] = useState('');
   const [name, setName] = useState('');
-  const [title, setTitle] = useState('');
-  const [bio, setBio] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [facebook, setFacebook] = useState('');
-  const [instagram, setInstagram] = useState('');
-  const [linkedin, setLinkedin] = useState('');
+  const [subtitle, setSubtitle] = useState('');
+  const [theme, setTheme] = useState('amber');
+  const [isLocked, setIsLocked] = useState(false);
+  const [pinCode, setPinCode] = useState('');
+
+  const [links, setLinks] = useState<Array<{ name: string; type: string; detail: string; url: string }>>([
+    { name: 'Instagram', type: 'instagram', detail: '', url: '' },
+  ]);
+
   const [statusMsg, setStatusMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (username && password) {
-      setAuthenticated(true);
-      setError('');
-    } else {
-      setError('Pakilagay ang username at password.');
+      setIsAuthenticated(true);
     }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
+  const addLinkField = () => {
+    setLinks([...links, { name: '', type: 'social', detail: '', url: '' }]);
+  };
+
+  const updateLink = (index: number, field: string, value: string) => {
+    const updated = [...links];
+    updated[index] = { ...updated[index], [field]: value };
+    setLinks(updated);
+  };
+
+  const removeLinkField = (index: number) => {
+    setLinks(links.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatusMsg('');
     setLoading(true);
+    setStatusMsg('Publishing to GitHub...');
+
+    const clientPayload = {
+      name,
+      subtitle,
+      theme,
+      isLocked,
+      ...(isLocked ? { pinCode } : {}),
+      links: links.filter((l) => l.name && l.url),
+    };
 
     try {
       const res = await fetch('/api/admin/client', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-admin-user': username,
-          'x-admin-pass': password,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          slug,
-          data: {
-            name,
-            title,
-            bio,
-            phone,
-            email,
-            socials: { facebook, instagram, linkedin },
-          },
+          username,
+          password,
+          clientId,
+          clientData: clientPayload,
         }),
       });
 
-      const result = await res.json();
+      const data = await res.json();
+
       if (res.ok) {
-        setStatusMsg('Successfully saved and updated to GitHub!');
+        setStatusMsg('✅ Success! Client profile saved to clients.json.');
       } else {
-        setStatusMsg('Error: ' + (result.error || 'Failed to save'));
+        setStatusMsg(`❌ Error: ${data.error}`);
       }
-    } catch (err: any) {
-      setStatusMsg('Error saving card: ' + err.message);
+    } catch (err) {
+      setStatusMsg('❌ Failed to connect to server.');
     } finally {
       setLoading(false);
     }
   };
 
-  if (!authenticated) {
+  if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-        <form onSubmit={handleLogin} className="bg-white p-6 rounded shadow-md w-full max-w-sm">
-          <h1 className="text-xl font-bold mb-4 text-center text-gray-800">Mitsu Admin Login</h1>
-          {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700">Username</label>
+      <main className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4">
+        <form onSubmit={handleLogin} className="bg-slate-900 border border-slate-800 p-6 rounded-xl w-full max-w-sm space-y-4">
+          <h1 className="text-xl font-bold text-center text-amber-400">Mitsu Admin Access</h1>
+          <div>
+            <label className="text-xs text-slate-400">Username</label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full border px-3 py-2 rounded mt-1 text-black"
+              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white mt-1 text-sm"
               required
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Password</label>
+          <div>
+            <label className="text-xs text-slate-400">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border px-3 py-2 rounded mt-1 text-black"
+              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white mt-1 text-sm"
               required
             />
           </div>
-          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700">
+          <button type="submit" className="w-full bg-amber-600 hover:bg-amber-500 font-bold py-2 rounded text-sm transition text-black">
             Login
           </button>
         </form>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 max-w-2xl mx-auto text-black">
-      <h1 className="text-2xl font-bold mb-6">Mitsu Smart Card - Client Manager</h1>
-      
+    <main className="min-h-screen bg-slate-950 text-white p-4 max-w-xl mx-auto space-y-6">
+      <div className="flex justify-between items-center border-b border-slate-800 pb-4">
+        <h1 className="text-xl font-bold text-amber-400">Mitsu Admin Dashboard</h1>
+        <button onClick={() => setIsAuthenticated(false)} className="text-xs bg-red-500/20 text-red-400 px-3 py-1 rounded">
+          Logout
+        </button>
+      </div>
+
       {statusMsg && (
-        <div className={`p-4 mb-4 rounded ${statusMsg.startsWith('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+        <div className="p-3 bg-slate-900 border border-slate-700 text-sm rounded font-medium">
           {statusMsg}
         </div>
       )}
 
-      <form onSubmit={handleSave} className="space-y-4 bg-white p-6 rounded shadow">
+      <form onSubmit={handleSubmit} className="space-y-4 bg-slate-900 border border-slate-800 p-5 rounded-xl">
         <div>
-          <label className="block text-sm font-medium">Card Slug / URL Name (e.g. juan-dela-cruz)</label>
+          <label className="text-xs font-semibold text-slate-300">Client ID / Slug (e.g., 61112)</label>
           <input
             type="text"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            className="w-full border p-2 rounded mt-1"
-            placeholder="juan-dela-cruz"
+            value={clientId}
+            onChange={(e) => setClientId(e.target.value)}
+            className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white mt-1 text-sm"
             required
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium">Full Name</label>
+            <label className="text-xs font-semibold text-slate-300">Full Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border p-2 rounded mt-1"
+              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white mt-1 text-sm"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Job Title / Role</label>
+            <label className="text-xs font-semibold text-slate-300">Subtitle / Role</label>
             <input
               type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full border p-2 rounded mt-1"
+              value={subtitle}
+              onChange={(e) => setSubtitle(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white mt-1 text-sm"
             />
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium">Bio</label>
-          <textarea
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            className="w-full border p-2 rounded mt-1"
-            rows={2}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium">Phone</label>
+            <label className="text-xs font-semibold text-slate-300">Theme</label>
             <input
               type="text"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full border p-2 rounded mt-1"
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white mt-1 text-sm"
+              placeholder="amber, sky, etc."
+              required
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium">Email</label>
+          <div className="flex items-center space-x-3 pt-6">
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border p-2 rounded mt-1"
+              type="checkbox"
+              id="isLocked"
+              checked={isLocked}
+              onChange={(e) => setIsLocked(e.target.checked)}
+              className="w-4 h-4 accent-amber-500"
             />
+            <label htmlFor="isLocked" className="text-xs font-semibold text-slate-300 cursor-pointer">
+              Is Locked (Require PIN)
+            </label>
           </div>
         </div>
 
-        <h3 className="font-semibold pt-2">Social Links</h3>
-        <div className="space-y-2">
-          <input
-            type="text"
-            placeholder="Facebook URL"
-            value={facebook}
-            onChange={(e) => setFacebook(e.target.value)}
-            className="w-full border p-2 rounded"
-          />
-          <input
-            type="text"
-            placeholder="Instagram URL"
-            value={instagram}
-            onChange={(e) => setInstagram(e.target.value)}
-            className="w-full border p-2 rounded"
-          />
-          <input
-            type="text"
-            placeholder="LinkedIn URL"
-            value={linkedin}
-            onChange={(e) => setLinkedin(e.target.value)}
-            className="w-full border p-2 rounded"
-          />
+        {isLocked && (
+          <div>
+            <label className="text-xs font-semibold text-slate-300">PIN Code</label>
+            <input
+              type="text"
+              value={pinCode}
+              onChange={(e) => setPinCode(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white mt-1 text-sm"
+              placeholder="1234"
+              required
+            />
+          </div>
+        )}
+
+        <div className="space-y-3 pt-2">
+          <label className="text-xs font-semibold text-slate-300 block">Links</label>
+          {links.map((link, idx) => (
+            <div key={idx} className="bg-slate-950 p-3 rounded border border-slate-800 space-y-2 text-xs">
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-amber-400">Link #{idx + 1}</span>
+                {links.length > 1 && (
+                  <button type="button" onClick={() => removeLinkField(idx)} className="text-red-400 hover:underline">
+                    Remove
+                  </button>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  placeholder="Name (e.g., Instagram)"
+                  value={link.name}
+                  onChange={(e) => updateLink(idx, 'name', e.target.value)}
+                  className="bg-slate-900 border border-slate-800 rounded p-1.5 text-white"
+                />
+                <input
+                  type="text"
+                  placeholder="Type (e.g., instagram)"
+                  value={link.type}
+                  onChange={(e) => updateLink(idx, 'type', e.target.value)}
+                  className="bg-slate-900 border border-slate-800 rounded p-1.5 text-white"
+                />
+              </div>
+              <input
+                type="text"
+                placeholder="Detail (e.g., @mitsu.jv)"
+                value={link.detail}
+                onChange={(e) => updateLink(idx, 'detail', e.target.value)}
+                className="w-full bg-slate-900 border border-slate-800 rounded p-1.5 text-white"
+              />
+              <input
+                type="text"
+                placeholder="URL (https://...)"
+                value={link.url}
+                onChange={(e) => updateLink(idx, 'url', e.target.value)}
+                className="w-full bg-slate-900 border border-slate-800 rounded p-1.5 text-white"
+              />
+            </div>
+          ))}
+          <button type="button" onClick={addLinkField} className="text-xs text-amber-400 hover:underline">
+            + Add Link
+          </button>
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-black text-white py-3 rounded font-bold hover:bg-gray-800 disabled:opacity-50 mt-4"
+          className="w-full bg-amber-600 hover:bg-amber-500 disabled:bg-slate-700 text-sm font-bold py-2.5 rounded-lg text-black transition mt-4"
         >
-          {loading ? 'Saving & Publishing...' : 'Save & Publish Customer Card'}
+          {loading ? 'Saving to clients.json...' : 'Save & Publish Customer Card'}
         </button>
       </form>
-    </div>
+    </main>
   );
 }
