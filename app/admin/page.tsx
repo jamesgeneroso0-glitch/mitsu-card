@@ -225,6 +225,16 @@ const themeStyles: Record<string, { bg: string; border: string; accent: string; 
   }
 };
 
+// Helper function para mag-generate ng 10-character alphanumeric ID
+const generate10CharId = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < 10; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
+
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
@@ -232,12 +242,14 @@ export default function AdminPage() {
 
   const [savedAuth, setSavedAuth] = useState({ username: '', password: '' });
 
-  const [clientId, setClientId] = useState(() => Math.floor(10000 + Math.random() * 90000).toString());
+  const [clientId, setClientId] = useState(generate10CharId);
   const [name, setName] = useState('');
   const [subtitle, setSubtitle] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [theme, setTheme] = useState('');
   const [isLocked, setIsLocked] = useState(false);
   const [pinCode, setPinCode] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const [links, setLinks] = useState<Array<{ name: string; type: string; detail: string; url: string }>>([
     { name: '', type: '', detail: '', url: '' },
@@ -254,6 +266,12 @@ export default function AdminPage() {
     const randomKey = keys[Math.floor(Math.random() * keys.length)];
     setCurrentThemeStyle(themeStyles[randomKey]);
   }, []);
+
+  const handleCopyId = () => {
+    navigator.clipboard.writeText(clientId);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -285,6 +303,7 @@ export default function AdminPage() {
     const clientPayload = {
       name,
       subtitle,
+      avatarUrl,
       theme,
       isLocked,
       ...(isLocked ? { pinCode } : {}),
@@ -324,8 +343,9 @@ export default function AdminPage() {
     const reader = new FileReader();
     reader.onload = async (event) => {
       try {
-        const jsonContent = JSON.parse(event.target?.result as string);
-        const importedClientId = jsonContent.clientId || Math.floor(10000 + Math.random() * 90000).toString();
+        const text = event.target?.result as string;
+        const jsonContent = JSON.parse(text);
+        const importedClientId = jsonContent.clientId || generate10CharId();
         const clientData = jsonContent.clientData || jsonContent;
 
         setImportStatus('Uploading imported file to GitHub...');
@@ -351,6 +371,8 @@ export default function AdminPage() {
         setImportStatus('❌ Error parsing JSON file.');
       }
     };
+
+    // Siguraduhing binabasa ang file kahit ano man ang OS extension mapping
     reader.readAsText(file);
   };
 
@@ -418,13 +440,22 @@ export default function AdminPage() {
 
         <form onSubmit={handleSubmit} className={`space-y-4 bg-slate-900/90 backdrop-blur-2xl border ${currentThemeStyle.border} p-6 rounded-2xl shadow-2xl transition-all`}>
           <div>
-            <label className="text-xs font-semibold text-slate-300">Client ID / Slug (Auto-generated & Locked)</label>
-            <input
-              type="text"
-              value={clientId}
-              disabled
-              className="w-full bg-slate-900/60 border border-slate-800/80 rounded p-2 text-slate-400 mt-1 text-sm cursor-not-allowed select-none"
-            />
+            <label className="text-xs font-semibold text-slate-300">Card ID / Slug (Auto-generated & Locked)</label>
+            <div className="flex gap-2 mt-1">
+              <input
+                type="text"
+                value={clientId}
+                disabled
+                className="w-full bg-slate-900/60 border border-slate-800/80 rounded p-2 text-slate-400 text-sm cursor-not-allowed select-none font-mono"
+              />
+              <button
+                type="button"
+                onClick={handleCopyId}
+                className={`px-3 py-2 text-xs font-bold rounded transition border ${currentThemeStyle.badgeBg} hover:opacity-80 shrink-0`}
+              >
+                {copied ? '✓ Copied!' : 'Copy'}
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -447,6 +478,17 @@ export default function AdminPage() {
                 className={`w-full bg-slate-950 border border-slate-800 rounded p-2 text-white mt-1 text-sm focus:outline-none ${currentThemeStyle.focusBorder}`}
               />
             </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-slate-300">Avatar Image URL (Optional)</label>
+            <input
+              type="url"
+              value={avatarUrl}
+              onChange={(e) => setAvatarUrl(e.target.value)}
+              className={`w-full bg-slate-950 border border-slate-800 rounded p-2 text-white mt-1 text-sm focus:outline-none ${currentThemeStyle.focusBorder}`}
+              placeholder="https://example.com/avatar.png"
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -558,7 +600,7 @@ export default function AdminPage() {
           
           <input
             type="file"
-            accept=".json"
+            accept=".json,application/json,text/plain"
             onChange={handleJsonFileUpload}
             className="w-full text-xs text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 cursor-pointer"
           />
