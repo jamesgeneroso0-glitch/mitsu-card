@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     const repo = process.env.GITHUB_REPO;
     const path = 'data/clients.json';
 
-    // 1. Kunin ang kasalukuyang clients.json mula sa GitHub para makuha ang SHA at laman
+    // 1. Subukang kunin ang kasalukuyang clients.json mula sa GitHub
     const getFileResponse = await fetch(
       `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
       {
@@ -29,10 +29,14 @@ export async function POST(request: Request) {
       const fileData = await getFileResponse.json();
       currentSha = fileData.sha;
       const contentString = Buffer.from(fileData.content, 'base64').toString('utf-8');
-      clients = JSON.parse(contentString);
+      try {
+        clients = JSON.parse(contentString);
+      } catch (e) {
+        clients = {};
+      }
     }
 
-    // 2. Idagdag o i-update ang client gamit ang eksaktong format
+    // 2. Idagdag o i-update ang client gamit ang ID
     clients[clientId] = clientData;
 
     // 3. I-encode pabalik sa Base64
@@ -40,7 +44,7 @@ export async function POST(request: Request) {
       JSON.stringify(clients, null, 2)
     ).toString('base64');
 
-    // 4. I-commit ang pagbabago pabalik sa GitHub
+    // 4. I-commit ang pagbabago pabalik sa GitHub (Gagawa ito ng file kung wala pa)
     const updateResponse = await fetch(
       `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
       {
@@ -51,7 +55,7 @@ export async function POST(request: Request) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: `Update client: ${clientId} via Admin Dashboard`,
+          message: `Add/Update client: ${clientId} via Admin Dashboard`,
           content: updatedContentBase64,
           ...(currentSha ? { sha: currentSha } : {}),
         }),
@@ -66,7 +70,7 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ success: true, message: 'Client updated successfully!' });
+    return NextResponse.json({ success: true, message: 'Client saved successfully!' });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
