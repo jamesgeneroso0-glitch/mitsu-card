@@ -3,8 +3,7 @@
     "name": "Elyssa Suliguin",
     "subtitle": "My Baby",
     "theme": "sky",
-    "isLocked": true,
-    "pinCode": "4321",
+    "isLocked": false,
     "links": [
       {
         "name": "Instagram",

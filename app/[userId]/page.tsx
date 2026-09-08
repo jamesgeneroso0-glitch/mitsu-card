@@ -20,20 +20,20 @@ interface ClientData {
 }
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ userId: string }>;
 };
 
 const clients = clientsData as Record<string, ClientData>;
 
 export async function generateStaticParams() {
   return Object.keys(clients).map((id) => ({
-    id: id,
+    userId: id,
   }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
-  const client = clients[resolvedParams.id];
+  const client = clients[resolvedParams.userId];
 
   if (!client) {
     return { title: 'Card Not Found | Mitsu Smart Card' };
@@ -176,7 +176,6 @@ const themeStyles = {
     badgeBg: "bg-red-500/10 text-red-400 border-red-500/30",
     btnBg: "bg-red-600 hover:bg-red-500 shadow-red-500/25",
   },
-  // --- 6 BAGONG UNISEX THEMES ---
   slate: {
     bg: "from-slate-950 via-slate-900 to-slate-950",
     border: "border-slate-600/40 hover:border-slate-500/60",
@@ -235,7 +234,7 @@ const themeStyles = {
 
 export default async function ClientProfilePage({ params }: Props) {
   const resolvedParams = await params;
-  const client = clients[resolvedParams.id];
+  const client = clients[resolvedParams.userId];
 
   if (!client) {
     notFound();
