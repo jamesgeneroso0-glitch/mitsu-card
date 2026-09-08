@@ -13,6 +13,7 @@ interface LinkItem {
 interface ClientData {
   name: string;
   subtitle: string;
+  image?: string; // Optional profile image URL
   theme: keyof typeof themeStyles;
   isLocked?: boolean;
   pinCode?: string;
@@ -45,6 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: `${client.name} - Mitsu Smart Card`,
       description: client.subtitle || `Connect with ${client.name} via Mitsu Smart Card`,
+      images: client.image ? [{ url: client.image }] : [],
     },
   };
 }

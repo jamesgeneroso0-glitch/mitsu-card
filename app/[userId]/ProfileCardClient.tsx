@@ -19,6 +19,7 @@ interface LinkItem {
 interface ClientData {
   name: string;
   subtitle: string;
+  image?: string; // Optional profile image URL
   theme: string;
   isLocked?: boolean;
   pinCode?: string;
@@ -185,8 +186,16 @@ export default function ProfileCardClient({
       {/* Avatar Display */}
       <div className="relative mb-3">
         <div className={`absolute -inset-1 rounded-full bg-gradient-to-r ${theme.avatarGlow} opacity-60`} />
-        <div className="relative w-20 h-20 rounded-full bg-slate-950 border-2 border-slate-700/60 flex items-center justify-center text-2xl font-bold shadow-inner">
-          <span className={theme.accent}>{initials}</span>
+        <div className="relative w-20 h-20 rounded-full bg-slate-950 border-2 border-slate-700/60 flex items-center justify-center text-2xl font-bold shadow-inner overflow-hidden">
+          {client.image ? (
+            <img 
+              src={client.image} 
+              alt={client.name} 
+              className="w-full h-full object-cover rounded-full"
+            />
+          ) : (
+            <span className={theme.accent}>{initials}</span>
+          )}
         </div>
       </div>
 
