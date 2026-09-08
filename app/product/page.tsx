@@ -4,7 +4,7 @@ import { useState, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Sparkles, Zap, ShieldCheck, Smartphone, Send, Mail, Phone, MapPin, CheckCircle, Layers, QrCode } from 'lucide-react';
 import Image from 'next/image';
-import qrImage from '@/public/mitsu-nfc-card.png';
+import qrImage from '@/public/mitsu-smart-card-demo.png';
 
 // Separate Component for FAQ Item to prevent React Hook Error in .map()
 function FAQItem({ q, a, index }: { q: string; a: string; index: number }) {
@@ -112,12 +112,12 @@ export default function ProductLandingPage() {
 
   const faqData = [
     {
-      q: "How much is the Black & White Edition NFC Card?",
+      q: "How much is the Black & White Edition MSC Card?",
       a: "The physical card costs only ₱499 as a one-time payment. This includes NTAG213 microchip programming and lifetime access to edit your profile links."
     },
     {
       q: "Does it work with all types of smartphones?",
-      a: "Yes! Most modern iOS (iPhone XR and above) and Android phones feature native NFC support. For older devices, users can easily scan the custom QR code on the back of the card."
+      a: "Yes! Most modern iOS and Android phones feature native NFC support. For older devices, users can easily scan the custom QR code on the back of the card."
     },
     {
       q: "Is a special app required to read the card?",
@@ -222,13 +222,13 @@ export default function ProductLandingPage() {
               className={`w-72 h-44 bg-gradient-to-br ${themeStyles[cardTheme].cardBg} border ${themeStyles[cardTheme].border} rounded-2xl shadow-2xl p-6 cursor-pointer flex flex-col justify-between relative overflow-hidden group select-none hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 transform-gpu`}
             >
               <div className="flex justify-between items-center">
-                <span className="font-bold text-lg tracking-wider text-slate-100">Smart NFC Card</span>
+                <span className="font-bold text-lg tracking-wider text-slate-100">Mitsu Smart Card</span>
                 <Share2 className="text-slate-300 group-hover:rotate-12 transition-transform" size={20} />
               </div>
 
               <div className="text-center py-2">
                 <span className={`text-[11px] uppercase tracking-widest font-semibold px-2.5 py-1 rounded-full border ${themeStyles[cardTheme].badge}`}>
-                  {isOpen ? "[ Tap to Close ]" : "[ Tap to Test NFC ]"}
+                  {isOpen ? "[ Tap to Close ]" : "[ Tap to Test MSC ]"}
                 </span>
               </div>
 
@@ -276,7 +276,7 @@ export default function ProductLandingPage() {
               transition={{ duration: 0.3, delay: 0.1 }}
               className="text-3xl font-bold tracking-tight mb-2"
             >
-              Why Switch to Smart NFC?
+              Why Switch to Mitsu Smart Card?
             </motion.h2>
             <motion.p 
               initial={{ opacity: 0, y: 15 }}
@@ -597,18 +597,18 @@ export default function ProductLandingPage() {
             className="bg-slate-900/60 border border-slate-800 p-8 rounded-3xl flex flex-col items-center gap-4 shadow-2xl"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs">
-              <QrCode size={14} /> NFC Live Scan Demo
+              <QrCode size={14} /> MSC Live Scan Demo
             </div>
 
             <h3 className="text-xl font-bold text-slate-100">Scan to Test Live Profile</h3>
             <p className="text-xs text-slate-400 max-w-xs">
-              Scan this QR code using your smartphone camera to see how your digital profile will look upon tapping the NFC card.
+              Scan this QR code using your smartphone camera to see how your digital profile will look upon tapping the MSC card.
             </p>
 
             <div className="p-4 bg-white rounded-2xl shadow-xl mt-2 border-4 border-slate-800">
               <Image 
                 src={qrImage} 
-                alt="NFC Demo QR Code" 
+                alt="MSC Demo QR Code" 
                 width={180} 
                 height={180} 
                 className="rounded-lg object-contain mx-auto"
@@ -630,7 +630,7 @@ export default function ProductLandingPage() {
               Frequently Asked Questions & Pricing
             </motion.h2>
             <p className="text-slate-400 text-xs md:text-sm">
-              Everything you need to know about the Black & White Edition Smart NFC Card.
+              Everything you need to know about the Black & White Edition Smart MSC Card.
             </p>
           </div>
 

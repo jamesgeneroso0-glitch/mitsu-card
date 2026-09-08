@@ -185,7 +185,7 @@ export default function HomePage() {
         
         <ScrollReveal delay={150}>
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-            {['Instagram', 'TikTok', 'Facebook', 'LinkedIn', 'YouTube', 'GCash', 'Spotify', 'Discord', 'Steam', 'Custom Link'].map((platform, i) => (
+            {['Instagram', 'TikTok', 'Facebook', 'Twitter','LinkedIn', 'YouTube', 'Spotify', 'Discord', 'Steam', ' + ', 'Custom Link'].map((platform, i) => (
               <span 
                 key={i} 
                 className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 font-medium inline-block hover:border-slate-700 transition"
