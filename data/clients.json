@@ -143,5 +143,20 @@
         "url": "https://www.facebook.com/argopo12"
       }
     ]
+  },
+  "Pc5LfDykZ4": {
+    "name": "Mye Generoso",
+    "subtitle": "User",
+    "avatarUrl": "",
+    "theme": "cyber",
+    "isLocked": false,
+    "links": [
+      {
+        "name": "Facebook",
+        "type": "facebook",
+        "detail": "Mye Generoso",
+        "url": "https://www.facebook.com/share/1BsgYahiy9/"
+      }
+    ]
   }
 }
