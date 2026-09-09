@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   User, 
   MessageCircle, 
@@ -16,7 +16,10 @@ import {
   ExternalLink,
   RotateCcw,
   Copy,
-  Check
+  Check,
+  Upload,
+  Image as ImageIcon,
+  AlertCircle
 } from 'lucide-react';
 
 // Plain theme fallback for unselected state
@@ -249,8 +252,18 @@ export default function ClientPortalPage() {
   const [copied, setCopied] = useState(false);
   const [name, setName] = useState('');
   const [subtitle, setSubtitle] = useState('');
+  
+  // Image Data & File Names
   const [avatarUrl, setAvatarUrl] = useState('');
-  const [theme, setTheme] = useState(''); // Empty initial state so user is forced to pick
+  const [bannerUrl, setBannerUrl] = useState('');
+  const [avatarFileName, setAvatarFileName] = useState('');
+  const [bannerFileName, setBannerFileName] = useState('');
+
+  // Refs for resetting HTML file inputs
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const [theme, setTheme] = useState('');
   const [isLocked, setIsLocked] = useState(false);
   const [pinCode, setPinCode] = useState('');
     
@@ -266,7 +279,6 @@ export default function ClientPortalPage() {
     generateNewId();
   }, []);
 
-  // Generate 10-character random ID (Uppercase, Lowercase, Numbers)
   const generateNewId = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
@@ -288,12 +300,81 @@ export default function ClientPortalPage() {
     setName('');
     setSubtitle('');
     setAvatarUrl('');
+    setBannerUrl('');
+    setAvatarFileName('');
+    setBannerFileName('');
+    if (bannerInputRef.current) bannerInputRef.current.value = '';
+    if (avatarInputRef.current) avatarInputRef.current.value = '';
     setTheme('');
     setIsLocked(false);
     setPinCode('');
     setLinks([{ name: '', type: 'website', detail: '', url: '' }]);
     setMessage('');
     generateNewId();
+  };
+
+  // Image Upload Handler with Strict Dimension Check
+  const handleImageUpload = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: 'banner' | 'avatar'
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const targetWidth = type === 'banner' ? 1200 : 400;
+    const targetHeight = type === 'banner' ? 350 : 400;
+    const labelName = type === 'banner' ? 'Banner Image' : 'Profile Picture';
+
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    img.onload = () => {
+      // Validate Exact Image Dimensions
+      if (img.width !== targetWidth || img.height !== targetHeight) {
+        setMessage(
+          `Invalid Request: Incorrect ${labelName} dimensions! The required size is exactly ${targetWidth} x ${targetHeight} pixels. (Your file: ${img.width} x ${img.height}px)`
+        );
+
+        // Reject & Clear Input
+        if (type === 'banner') {
+          setBannerUrl('');
+          setBannerFileName('');
+          if (bannerInputRef.current) bannerInputRef.current.value = '';
+        } else {
+          setAvatarUrl('');
+          setAvatarFileName('');
+          if (avatarInputRef.current) avatarInputRef.current.value = '';
+        }
+        URL.revokeObjectURL(objectUrl);
+        return;
+      }
+
+      // Read valid image as Data URL (Base64) for preview and JSON export
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (type === 'banner') {
+          setBannerUrl(reader.result as string);
+          setBannerFileName(file.name);
+        } else {
+          setAvatarUrl(reader.result as string);
+          setAvatarFileName(file.name);
+        }
+        setMessage(''); // Clear error message on success
+        URL.revokeObjectURL(objectUrl);
+      };
+      reader.readAsDataURL(file);
+    };
+
+    img.onerror = () => {
+      setMessage(`Invalid Request: Unable to read ${labelName} file. Please select a valid image.`);
+      if (type === 'banner') {
+        if (bannerInputRef.current) bannerInputRef.current.value = '';
+      } else {
+        if (avatarInputRef.current) avatarInputRef.current.value = '';
+      }
+    };
+
+    img.src = objectUrl;
   };
 
   const handleAddLink = () => {
@@ -343,6 +424,7 @@ export default function ClientPortalPage() {
       name: name || 'John Doe',
       subtitle: subtitle || 'Subtitle / Role',
       avatarUrl,
+      bannerUrl,
       theme,
       isLocked,
       pinCode: isLocked ? pinCode : '',
@@ -358,7 +440,7 @@ export default function ClientPortalPage() {
 
       const result = await response.json();
       if (response.ok) {
-        // 1. Auto-generate and download the .json file for the client
+        // Auto-generate and download the .json file for the client
         const fullPayload = { clientId, ...clientData };
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullPayload, null, 2));
         const downloadAnchor = document.createElement('a');
@@ -368,7 +450,6 @@ export default function ClientPortalPage() {
         downloadAnchor.click();
         downloadAnchor.remove();
 
-        // 2. Display success message formatted on two separate lines
         const pinReminder = isLocked ? ` | PIN Code: ${pinCode}` : '';
         setMessage(`Success! Your configuration file ${clientId}.json has been downloaded.\n\nPlease keep note of your Card ID: ${clientId}${pinReminder}. Send or email the downloaded .json file to complete your profile card setup!`);
       } else {
@@ -418,7 +499,7 @@ export default function ClientPortalPage() {
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               
-            {/* Automated Slug / ID Container with Embedded Copy Button */}
+            {/* Automated Slug / ID Container */}
             <div>
               <label className="text-xs font-medium text-slate-400">Generated Card ID / Slug (Automated):</label>
               <div className="relative mt-1.5 flex items-center">
@@ -471,15 +552,72 @@ export default function ClientPortalPage() {
               />
             </div>
 
-            <div>
-              <label className="text-sm font-medium text-slate-300">Avatar Image URL (Optional):</label>
-              <input 
-                type="url" 
-                value={avatarUrl} 
-                onChange={(e) => setAvatarUrl(e.target.value)} 
-                placeholder="https://example.com/photo.jpg"
-                className="w-full px-3 py-2 mt-1.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg text-white text-sm outline-none transition-all"
-              />
+            {/* DIRECT FILE UPLOAD CONTAINER (Banner & Profile Picture) */}
+            <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-800/80 flex flex-col gap-4">
+              <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+                <ImageIcon size={16} className="text-indigo-400" />
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-300">Direct File Import</h3>
+              </div>
+
+              {/* Banner Image Direct Upload */}
+              <div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="text-sm font-medium text-slate-300">Banner Image File:</label>
+                  <span className="text-[10px] bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/20 font-mono">Must be 1200 x 350 px</span>
+                </div>
+                <div className="relative">
+                  <input 
+                    ref={bannerInputRef}
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(e, 'banner')}
+                    className="hidden"
+                    id="banner-upload"
+                  />
+                  <label 
+                    htmlFor="banner-upload"
+                    className="flex items-center justify-between w-full px-3 py-2.5 bg-slate-950 border border-slate-800 hover:border-indigo-500/60 rounded-lg text-slate-300 text-sm cursor-pointer transition-all"
+                  >
+                    <span className="truncate text-xs text-slate-400">
+                      {bannerFileName ? `📄 ${bannerFileName}` : 'Select Banner Image File...'}
+                    </span>
+                    <span className="flex items-center gap-1.5 text-xs bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded text-slate-200 shrink-0 font-medium border border-slate-700">
+                      <Upload size={13} /> Import
+                    </span>
+                  </label>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">Required size: <strong className="text-slate-400">1200 x 350 pixels</strong>. If dimensions do not match, the request will be invalid.</p>
+              </div>
+
+              {/* Profile Picture Direct Upload */}
+              <div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="text-sm font-medium text-slate-300">Profile Picture File:</label>
+                  <span className="text-[10px] bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/20 font-mono">Must be 400 x 400 px</span>
+                </div>
+                <div className="relative">
+                  <input 
+                    ref={avatarInputRef}
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(e, 'avatar')}
+                    className="hidden"
+                    id="avatar-upload"
+                  />
+                  <label 
+                    htmlFor="avatar-upload"
+                    className="flex items-center justify-between w-full px-3 py-2.5 bg-slate-950 border border-slate-800 hover:border-indigo-500/60 rounded-lg text-slate-300 text-sm cursor-pointer transition-all"
+                  >
+                    <span className="truncate text-xs text-slate-400">
+                      {avatarFileName ? `📄 ${avatarFileName}` : 'Select Profile Picture File...'}
+                    </span>
+                    <span className="flex items-center gap-1.5 text-xs bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded text-slate-200 shrink-0 font-medium border border-slate-700">
+                      <Upload size={13} /> Import
+                    </span>
+                  </label>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">Required size: <strong className="text-slate-400">400 x 400 pixels</strong> (Square 1:1). If dimensions do not match, the request will be invalid.</p>
+              </div>
             </div>
 
             <div>
@@ -584,7 +722,7 @@ export default function ClientPortalPage() {
               <p className="text-xs text-rose-400 text-center">Maximum limit of 3 links reached.</p>
             )}
 
-            {/* Action Section: Single full-width Save & Publish Button */}
+            {/* Action Section */}
             <div className="mt-3">
               <button 
                 type="submit" 
@@ -596,9 +734,16 @@ export default function ClientPortalPage() {
             </div>
 
             {message && (
-              <p className={`text-center text-xs sm:text-sm font-medium mt-2 leading-relaxed whitespace-pre-line ${message.startsWith('Success!') ? 'text-emerald-400 bg-emerald-950/40 p-4 rounded-xl border border-emerald-500/30 shadow-md' : 'text-rose-400'}`}>
-                {message}
-              </p>
+              <div className={`p-4 rounded-xl border text-xs sm:text-sm font-medium leading-relaxed whitespace-pre-line flex items-start gap-2.5 mt-2 ${
+                message.startsWith('Success!') 
+                  ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/30' 
+                  : 'bg-rose-950/40 text-rose-400 border-rose-500/30'
+              }`}>
+                {message.startsWith('Invalid Request') ? (
+                  <AlertCircle size={18} className="shrink-0 text-rose-400 mt-0.5" />
+                ) : null}
+                <div>{message}</div>
+              </div>
             )}
           </form>
         </div>
@@ -606,61 +751,72 @@ export default function ClientPortalPage() {
         {/* LIVE PREVIEW SECTION (Right) */}
         <div className="flex-1 w-full min-w-0 flex flex-col items-center justify-start lg:justify-center bg-slate-950/40 p-4 sm:p-6 rounded-2xl border border-slate-800/60">
           
-          {/* Header Label - Kept in flex flow to avoid overlap */}
           <div className="w-full text-center lg:text-left text-xs uppercase tracking-widest text-slate-500 font-bold mb-4">
             Live Official Preview
           </div>
               
           {/* Profile Card Mockup */}
-          <div className={`w-full max-w-[340px] bg-gradient-to-b ${currentTheme.bg} border ${currentTheme.border} rounded-3xl p-5 sm:p-6 text-center shadow-2xl relative overflow-hidden backdrop-blur-xl transition-all duration-500 my-auto`}>
-              
-            <div className="flex justify-between items-center mb-6">
-              <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${isLocked ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'}`}>
+          <div className={`w-full max-w-[340px] bg-gradient-to-b ${currentTheme.bg} border ${currentTheme.border} rounded-3xl text-center shadow-2xl relative overflow-hidden backdrop-blur-xl transition-all duration-500 my-auto`}>
+            
+            {/* Top Banner Container */}
+            <div className="w-full h-28 relative overflow-hidden bg-slate-950/60 border-b border-white/10 flex items-start justify-between p-3.5">
+              {bannerUrl ? (
+                <img src={bannerUrl} alt="Banner Preview" className="absolute inset-0 w-full h-full object-cover" />
+              ) : (
+                <div className={`absolute inset-0 bg-gradient-to-r ${currentTheme.avatarGlow} opacity-30`} />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-transparent to-slate-950/80 pointer-events-none" />
+
+              {/* Status Header Badges */}
+              <div className={`relative z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium backdrop-blur-md ${isLocked ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'}`}>
                 <span>{isLocked ? '🔒' : '🔓'}</span> {isLocked ? 'Locked' : 'Unlocked'}
               </div>
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-slate-800/80 text-slate-300 border border-slate-700/50">
+              <div className="relative z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-slate-900/80 text-slate-200 border border-slate-700/60 backdrop-blur-md">
                 <span>📤</span> Share
               </div>
             </div>
 
-            <div className={`absolute top-20 left-1/2 -translate-x-1/2 w-32 h-32 ${currentTheme.glow} rounded-full blur-2xl pointer-events-none`} />
+            <div className="p-5 sm:p-6 pt-0">
+              <div className={`absolute top-20 left-1/2 -translate-x-1/2 w-32 h-32 ${currentTheme.glow} rounded-full blur-2xl pointer-events-none`} />
 
-            <div className={`relative w-20 h-20 rounded-full bg-gradient-to-tr ${currentTheme.avatarGlow} mx-auto mb-4 flex items-center justify-center text-2xl font-bold text-white shadow-lg overflow-hidden`}>
-              {avatarUrl ? (
-                <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-              ) : (
-                initials
-              )}
-            </div>
-
-            <h1 className="text-xl font-bold text-white tracking-tight break-words">{name || 'John Doe'}</h1>
-            <p className={`text-sm font-medium ${currentTheme.accent} mt-1 break-words`}>{subtitle || 'Me'}</p>
-
-            <div className="mt-6">
-              <div className={`w-full py-3 rounded-xl text-sm font-semibold ${currentTheme.btnBg} shadow-md flex items-center justify-center gap-2 transition-all`}>
-                <span>👤+</span> Save Contact
+              {/* Profile Avatar overlapping banner */}
+              <div className={`relative -mt-10 w-20 h-20 rounded-full bg-gradient-to-tr ${currentTheme.avatarGlow} mx-auto mb-4 flex items-center justify-center text-2xl font-bold text-white shadow-xl ring-4 ring-slate-900 overflow-hidden z-10`}>
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="Avatar Preview" className="w-full h-full object-cover" />
+                ) : (
+                  initials
+                )}
               </div>
-            </div>
 
-            <div className="mt-6 flex flex-col gap-3 text-left">
-              {links.map((l, i) => (
-                <div key={i} className="w-full p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-sm text-white flex items-center justify-between shadow-inner transition-all hover:bg-slate-900">
-                  <div className="flex items-center gap-3 truncate min-w-0">
-                    <div className="w-9 h-9 rounded-lg bg-slate-800/80 border border-slate-700/50 flex items-center justify-center text-xs shrink-0 text-slate-300">
-                      {getIcon(l.name)}
-                    </div>
-                    <div className="truncate min-w-0">
-                      <div className="font-semibold text-white truncate">{l.name || `Link Item #${i + 1}`}</div>
-                      <div className="text-xs text-slate-400 truncate">{l.detail || '@username'}</div>
-                    </div>
-                  </div>
-                  <span className="text-xs text-slate-400 shrink-0 ml-2">Visit ↗</span>
+              <h1 className="text-xl font-bold text-white tracking-tight break-words">{name || 'John Doe'}</h1>
+              <p className={`text-sm font-medium ${currentTheme.accent} mt-1 break-words`}>{subtitle || 'Me'}</p>
+
+              <div className="mt-6">
+                <div className={`w-full py-3 rounded-xl text-sm font-semibold ${currentTheme.btnBg} shadow-md flex items-center justify-center gap-2 transition-all`}>
+                  <span>👤+</span> Save Contact
                 </div>
-              ))}
-            </div>
+              </div>
 
-            <div className="mt-8 pt-4 border-t border-slate-800/60 text-[10px] tracking-widest uppercase text-slate-500 font-semibold">
-              Powered by Mitsu Smart Card
+              <div className="mt-6 flex flex-col gap-3 text-left">
+                {links.map((l, i) => (
+                  <div key={i} className="w-full p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-sm text-white flex items-center justify-between shadow-inner transition-all hover:bg-slate-900">
+                    <div className="flex items-center gap-3 truncate min-w-0">
+                      <div className="w-9 h-9 rounded-lg bg-slate-800/80 border border-slate-700/50 flex items-center justify-center text-xs shrink-0 text-slate-300">
+                        {getIcon(l.name)}
+                      </div>
+                      <div className="truncate min-w-0">
+                        <div className="font-semibold text-white truncate">{l.name || `Link Item #${i + 1}`}</div>
+                        <div className="text-xs text-slate-400 truncate">{l.detail || '@username'}</div>
+                      </div>
+                    </div>
+                    <span className="text-xs text-slate-400 shrink-0 ml-2">Visit ↗</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 pt-4 border-t border-slate-800/60 text-[10px] tracking-widest uppercase text-slate-500 font-semibold">
+                Powered by Mitsu Smart Card
+              </div>
             </div>
 
           </div>
