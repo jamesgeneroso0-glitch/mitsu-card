@@ -48,70 +48,56 @@ const getIcon = (type: string) => {
   }
 };
 
-// Katamtamang bilis ng Pop-up Animation na may ~2 seconds na delay sa umpisa
+// Ultra-fast, Hardware-Accelerated Bezier Easing (No JS Spring Overhead)
 const cardContainerVariants = {
-  hidden: { opacity: 0, scale: 0.8, y: 40 },
+  hidden: { opacity: 0, scale: 0.92, y: 24 },
   visible: { 
     opacity: 1, 
     scale: 1, 
     y: 0, 
     transition: { 
-      delay: 1.8, // 1.8 to 2 seconds na blangko bago lumabas
-      type: "spring", 
-      stiffness: 160, // Sakto lang ang bilis, hindi masyadong mabilis
-      damping: 18,    // May kaunting bouncy feel
-      mass: 1
+      delay: 1.8, // 1.8s Delay bago lumabas
+      duration: 0.55,
+      ease: [0.16, 1, 0.3, 1] // Native Smooth Ease-Out
     } 
   }
-} as const;
-
-const unlockedVariants = {
-  hidden: { opacity: 0, y: 15 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { duration: 0.3, ease: "easeOut" } 
-  },
-  exit: { opacity: 0, y: -10, transition: { duration: 0.2, ease: "easeIn" } }
 } as const;
 
 const linksListVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.07, delayChildren: 0.05 }
+    transition: { staggerChildren: 0.04, delayChildren: 0.1 }
   }
 };
 
 const linkItemVariants = {
-  hidden: { opacity: 0, y: 15, scale: 0.95 },
+  hidden: { opacity: 0, y: 10 },
   visible: { 
     opacity: 1, 
     y: 0, 
-    scale: 1,
-    transition: { type: "spring", stiffness: 220, damping: 20 } 
+    transition: { duration: 0.3, ease: "easeOut" } 
   }
 } as const;
 
 const modalBackdropVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.25 } },
-  exit: { opacity: 0, transition: { duration: 0.2 } }
+  visible: { opacity: 1, transition: { duration: 0.2 } },
+  exit: { opacity: 0, transition: { duration: 0.15 } }
 };
 
 const modalContentVariants = {
-  hidden: { opacity: 0, scale: 0.8, y: 25 },
+  hidden: { opacity: 0, scale: 0.9, y: 15 },
   visible: { 
     opacity: 1, 
     scale: 1, 
     y: 0,
-    transition: { type: "spring", stiffness: 200, damping: 20 }
+    transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] }
   },
   exit: { 
     opacity: 0, 
-    scale: 0.85, 
-    y: 15,
-    transition: { duration: 0.2, ease: "easeIn" }
+    scale: 0.92, 
+    transition: { duration: 0.15, ease: "easeIn" }
   }
 } as const;
 
@@ -177,7 +163,7 @@ export default function ProfileCardClient({
       variants={cardContainerVariants}
       initial="hidden"
       animate="visible"
-      className={`w-full max-w-sm bg-slate-950/95 border ${theme.border} rounded-3xl p-5 sm:p-6 shadow-2xl flex flex-col items-center text-center relative z-10 my-auto`}
+      className={`w-full max-w-sm bg-slate-900 border ${theme.border} rounded-3xl p-5 sm:p-6 shadow-xl flex flex-col items-center text-center relative z-10 my-auto`}
     >
       {/* Header Controls */}
       <div className="w-full flex items-center justify-between mb-4">
@@ -191,21 +177,20 @@ export default function ProfileCardClient({
         </div>
 
         {/* Share Button */}
-        <motion.button 
-          whileTap={{ scale: 0.92 }}
+        <button 
           onClick={handleShare}
-          className="p-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold cursor-pointer active:scale-95"
+          className="p-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold cursor-pointer active:scale-95"
           title="Share Profile Link"
         >
           {copied ? <Check size={14} className="text-green-400" /> : <Share2 size={14} />}
           <span className="text-[11px]">{copied ? 'Copied' : 'Share'}</span>
-        </motion.button>
+        </button>
       </div>
 
       {/* Avatar Display */}
       <div className="relative mb-3">
-        <div className={`absolute -inset-1 rounded-full bg-gradient-to-r ${theme.avatarGlow} opacity-60`} />
-        <div className="relative w-20 h-20 rounded-full bg-slate-950 border-2 border-slate-700/60 flex items-center justify-center text-2xl font-bold shadow-inner overflow-hidden">
+        <div className={`absolute -inset-1 rounded-full bg-gradient-to-r ${theme.avatarGlow} opacity-50`} />
+        <div className="relative w-20 h-20 rounded-full bg-slate-950 border-2 border-slate-700 flex items-center justify-center text-2xl font-bold overflow-hidden">
           {client.image ? (
             <img 
               src={client.image} 
@@ -233,11 +218,11 @@ export default function ProfileCardClient({
         {!isContentVisible ? (
           <motion.div 
             key="protected-screen"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="w-full bg-slate-900 border border-slate-800 rounded-2xl p-5 my-2 flex flex-col items-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="w-full bg-slate-950/60 border border-slate-800 rounded-2xl p-5 my-2 flex flex-col items-center"
           >
             <div className="p-3 rounded-full bg-purple-500/10 text-purple-400 mb-2 border border-purple-500/20">
               <ShieldAlert size={22} />
@@ -258,33 +243,31 @@ export default function ProfileCardClient({
               />
               {errorMsg && <p className="text-[10px] text-rose-400 font-medium">Incorrect PIN. Please try again.</p>}
               
-              <motion.button 
-                whileTap={{ scale: 0.95 }}
+              <button 
                 type="submit"
-                className={`w-full py-2.5 rounded-xl text-xs font-bold text-white transition-colors shadow-md mt-1 cursor-pointer ${theme.btnBg}`}
+                className={`w-full py-2.5 rounded-xl text-xs font-bold text-white transition-colors shadow-md mt-1 cursor-pointer active:scale-98 ${theme.btnBg}`}
               >
                 Unlock Content
-              </motion.button>
+              </button>
             </form>
           </motion.div>
         ) : (
           <motion.div 
             key="unlocked-screen"
-            variants={unlockedVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className="w-full flex flex-col items-center"
           >
             {/* Pop-up Trigger Button */}
-            <motion.button
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => setIsSaveModalOpen(true)}
-              className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-white transition-colors shadow-lg mb-4 cursor-pointer ${theme.btnBg}`}
+              className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-white transition-colors shadow-md mb-4 cursor-pointer active:scale-98 ${theme.btnBg}`}
             >
               <UserPlus size={16} />
               <span>Save Contact</span>
-            </motion.button>
+            </button>
 
             {/* Links List */}
             <motion.div 
@@ -300,22 +283,21 @@ export default function ProfileCardClient({
                   target="_blank"
                   rel="noopener noreferrer"
                   variants={linkItemVariants}
-                  whileTap={{ scale: 0.97 }}
-                  className="group flex items-center justify-between p-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-colors shadow-sm"
+                  className="group flex items-center justify-between p-3 rounded-2xl bg-slate-950/60 hover:bg-slate-800 border border-slate-800 transition-colors active:scale-98"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-xl bg-slate-800 border border-slate-700/50 group-hover:border-slate-600 transition-colors">
+                    <div className="p-2 rounded-xl bg-slate-800 border border-slate-700/50">
                       {getIcon(link.type)}
                     </div>
                     <div className="text-left">
-                      <p className="text-sm font-semibold text-slate-200 group-hover:text-white transition-colors">
+                      <p className="text-sm font-semibold text-slate-200">
                         {link.name}
                       </p>
                       <p className="text-xs text-slate-400">{link.detail}</p>
                     </div>
                   </div>
-                  <span className={`text-xs font-medium text-slate-400 group-hover:${theme.accent} transition-colors flex items-center gap-0.5`}>
-                    Visit <ArrowUpRight size={14} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <span className={`text-xs font-medium text-slate-400 flex items-center gap-0.5`}>
+                    Visit <ArrowUpRight size={14} />
                   </span>
                 </motion.a>
               ))}
@@ -344,13 +326,12 @@ export default function ProfileCardClient({
               exit="exit"
               className="relative w-full max-w-xs bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center z-10"
             >
-              <motion.button 
-                whileTap={{ scale: 0.9 }}
+              <button 
                 onClick={() => setIsSaveModalOpen(false)}
                 className="absolute top-4 right-4 p-1.5 rounded-full bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
               >
                 <X size={16} />
-              </motion.button>
+              </button>
 
               <div className={`p-3 rounded-2xl bg-slate-800 border border-slate-700 mb-3 ${theme.accent}`}>
                 <UserPlus size={24} />
@@ -371,16 +352,15 @@ export default function ProfileCardClient({
                 />
               </div>
 
-              <motion.a
-                whileTap={{ scale: 0.95 }}
+              <a
                 href={vcardDataUri}
                 download={`${client.name.replace(/\s+/g, '_')}_MitsuCard.vcf`}
                 onClick={() => setIsSaveModalOpen(false)}
-                className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-white transition-colors shadow-md ${theme.btnBg}`}
+                className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-white transition-colors shadow-md active:scale-98 ${theme.btnBg}`}
               >
                 <Download size={15} />
                 <span>Download Contact (.vcf)</span>
-              </motion.a>
+              </a>
             </motion.div>
           </div>
         )}
