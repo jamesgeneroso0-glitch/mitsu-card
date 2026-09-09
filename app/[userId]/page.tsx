@@ -195,8 +195,8 @@ export default async function ClientProfilePage({ params }: Props) {
   const vcardDataUri = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcardContent)}`;
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center py-8 px-4 relative overflow-hidden select-none">
-      {/* Light Radial Background Gradient (Walang GPU Heavy Blur Filters) */}
+    <main className="min-h-[100dvh] bg-slate-950 text-white flex flex-col items-center justify-start pt-[max(1.25rem,env(safe-area-inset-top))] pb-10 px-4 relative overflow-hidden select-none">
+      {/* Light Radial Background Gradient */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(30,41,59,0.5)_0%,rgba(2,6,23,1)_100%)] pointer-events-none" />
 
       {/* Client Interactive Component */}
