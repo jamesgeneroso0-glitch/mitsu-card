@@ -263,14 +263,18 @@ export default function Home() {
         </AnimatePresence>
       </div>
 
-      {/* Global Page Footer */}
-      <footer className="w-full max-w-4xl mt-12 pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-3 z-10 text-center sm:text-left">
-        <p>© {new Date().getFullYear()} Mitsu Smart Card. All rights reserved.</p>
-        <div className="flex items-center gap-4 text-slate-400">
-          <a href="#privacy" className="hover:text-white transition-colors">Privacy Policy</a>
-          <a href="#terms" className="hover:text-white transition-colors">Terms & Conditions</a>
-          <a href="#support" className="hover:text-white transition-colors">Contact Support</a>
-        </div>
+      {/* Footer */}
+      <footer className="w-full max-w-5xl border-t border-slate-800/60 pt-6 mt-12 text-center relative z-10">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="text-xs text-slate-500">
+              © {new Date().getFullYear()} Mitsu Smart Card. All rights reserved.
+            </p>
+            <div className="flex gap-4 text-xs text-slate-400">
+            <a href="https://www.mitsu.cards/privacy" className="hover:text-white transition">Privacy Policy</a>
+            <a href="https://www.mitsu.cards/terms" className="hover:text-white transition">Terms of Service</a>
+            <a href="https://www.mitsu.cards/support" className="hover:text-white transition">Contact Support</a>
+            </div>
+          </div>
       </footer>
 
     </main>

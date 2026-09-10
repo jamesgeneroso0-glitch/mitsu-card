@@ -668,8 +668,18 @@ export default function ProductLandingPage() {
         </section>
       </div>
 
-      <footer className="bg-slate-950 border-t border-slate-900 py-10 px-6 text-center text-xs text-slate-500">
-        <p>© {new Date().getFullYear()} Mitsu Smart Card. All rights reserved.</p>
+      {/* Footer */}
+      <footer className="w-full border-t border-slate-900 py-8 px-6 mt-16 text-center relative z-10 flex justify-center">
+        <div className="w-full max-w-5xl flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-slate-500">
+            © {new Date().getFullYear()} Mitsu Smart Card. All rights reserved.
+          </p>
+          <div className="flex gap-4 text-xs text-slate-400">
+            <a href="https://www.mitsu.cards/privacy" className="hover:text-white transition">Privacy Policy</a>
+            <a href="https://www.mitsu.cards/terms" className="hover:text-white transition">Terms of Service</a>
+            <a href="https://www.mitsu.cards/support" className="hover:text-white transition">Contact Support</a>
+          </div>
+        </div>
       </footer>
     </div>
   );
