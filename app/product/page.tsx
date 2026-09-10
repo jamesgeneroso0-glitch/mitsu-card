@@ -329,7 +329,7 @@ export default function ProductLandingPage() {
               </div>
               <h3 className="font-bold text-lg mb-2">Fully Customizable</h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Choose your favorite colors, upload your own logo, or customize your landing page layout anytime.
+                Choose your favorite background colors, upload your own profile and banner, and customize your links.
               </p>
             </motion.div>
 
@@ -676,7 +676,7 @@ export default function ProductLandingPage() {
           </p>
           <div className="flex gap-4 text-xs text-slate-400">
             <a href="https://www.mitsu.cards/privacy" className="hover:text-white transition">Privacy Policy</a>
-            <a href="https://www.mitsu.cards/terms" className="hover:text-white transition">Terms of Service</a>
+            <a href="https://www.mitsu.cards/terms" className="hover:text-white transition">Terms and Conditions</a>
             <a href="https://www.mitsu.cards/support" className="hover:text-white transition">Contact Support</a>
           </div>
         </div>

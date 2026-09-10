@@ -118,7 +118,7 @@ export default function HomePage() {
             <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl text-center hover:border-slate-700 transition">
               <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 font-bold flex items-center justify-center mx-auto mb-4 border border-purple-500/20">1</div>
               <h3 className="font-semibold text-sm text-slate-200">Tap the Card</h3>
-              <p className="text-xs text-slate-400 mt-2">Hold your Mitsu Card near any smartphone (iOS or Android).</p>
+              <p className="text-xs text-slate-400 mt-2">Hold your Mitsu Smart Card near any smartphone (iOS or Android).</p>
             </div>
           </ScrollReveal>
 
@@ -134,7 +134,7 @@ export default function HomePage() {
             <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl text-center hover:border-slate-700 transition">
               <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 font-bold flex items-center justify-center mx-auto mb-4 border border-cyan-500/20">3</div>
               <h3 className="font-semibold text-sm text-slate-200">Save & Connect</h3>
-              <p className="text-xs text-slate-400 mt-2">People can save your contact details or visit your links in one click.</p>
+              <p className="text-xs text-slate-400 mt-2">People can save and share your contact details or visit your links in one click.</p>
             </div>
           </ScrollReveal>
         </div>
