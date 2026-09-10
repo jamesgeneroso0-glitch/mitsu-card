@@ -10,10 +10,12 @@ interface LinkItem {
   url: string;
 }
 
-interface ClientData {
+interface RawClientData {
   name: string;
   subtitle: string;
   image?: string;
+  avatarUrl?: string; // Support for admin portal field name
+  bannerUrl?: string; // Support for banner image field
   theme: keyof typeof themeStyles;
   isLocked?: boolean;
   pinCode?: string;
@@ -24,7 +26,7 @@ type Props = {
   params: Promise<{ userId: string }>;
 };
 
-const clients = clientsData as Record<string, ClientData>;
+const clients = clientsData as Record<string, RawClientData>;
 
 export async function generateStaticParams() {
   return Object.keys(clients).map((id) => ({
@@ -34,19 +36,21 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
-  const client = clients[resolvedParams.userId];
+  const rawClient = clients[resolvedParams.userId];
 
-  if (!client) {
+  if (!rawClient) {
     return { title: 'Card Not Found | Mitsu Smart Card' };
   }
 
+  const clientImage = rawClient.image || rawClient.avatarUrl;
+
   return {
-    title: `${client.name} | Mitsu Smart Card`,
-    description: client.subtitle || `Digital profile card of ${client.name}`,
+    title: `${rawClient.name} | Mitsu Smart Card`,
+    description: rawClient.subtitle || `Digital profile card of ${rawClient.name}`,
     openGraph: {
-      title: `${client.name} - Mitsu Smart Card`,
-      description: client.subtitle || `Connect with ${client.name} via Mitsu Smart Card`,
-      images: client.image ? [{ url: client.image }] : [],
+      title: `${rawClient.name} - Mitsu Smart Card`,
+      description: rawClient.subtitle || `Connect with ${rawClient.name} via Mitsu Smart Card`,
+      images: clientImage ? [{ url: clientImage }] : [],
     },
   };
 }
@@ -176,11 +180,18 @@ const themeStyles = {
 
 export default async function ClientProfilePage({ params }: Props) {
   const resolvedParams = await params;
-  const client = clients[resolvedParams.userId];
+  const rawClient = clients[resolvedParams.userId];
 
-  if (!client) {
+  if (!rawClient) {
     notFound();
   }
+
+  // Normalize client data to ensure image and bannerUrl are correctly mapped
+  const client = {
+    ...rawClient,
+    image: rawClient.image || rawClient.avatarUrl,
+    bannerUrl: rawClient.bannerUrl,
+  };
 
   const theme = themeStyles[client.theme] || themeStyles.midnight;
 

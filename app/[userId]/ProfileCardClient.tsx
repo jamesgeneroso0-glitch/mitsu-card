@@ -20,7 +20,8 @@ interface LinkItem {
 interface ClientData {
   name: string;
   subtitle: string;
-  image?: string;
+  image?: string;       // Profile Image (avatarUrl)
+  bannerUrl?: string;   // Banner Image
   theme: string;
   isLocked?: boolean;
   pinCode?: string;
@@ -141,8 +142,18 @@ export default function ProfileCardClient({
         animate="visible"
         className={`w-full bg-slate-900 border ${theme.border} rounded-3xl overflow-hidden shadow-xl flex flex-col items-center text-center relative z-10 transform-gpu`}
       >
-        {/* Top Decorative Banner */}
-        <div className={`w-full h-28 bg-gradient-to-r ${theme.avatarGlow} relative overflow-hidden flex items-start justify-between p-4 border-b border-white/10 shadow-inner`}>
+        {/* Top Decorative / Custom Banner */}
+        <div className={`w-full h-28 relative overflow-hidden flex items-start justify-between p-4 border-b border-white/10 shadow-inner`}>
+          {client.bannerUrl ? (
+            <img 
+              src={client.bannerUrl} 
+              alt="Banner" 
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : (
+            <div className={`absolute inset-0 bg-gradient-to-r ${theme.avatarGlow}`} />
+          )}
+
           {/* Light Reflection Overlay */}
           <div className="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-slate-950/40 pointer-events-none" />
 
