@@ -158,5 +158,22 @@
         "url": "https://www.facebook.com/share/1BsgYahiy9/"
       }
     ]
+  },
+  "O6YcYNz1lu": {
+    "name": "Mitsu Kazuwara",
+    "subtitle": "Owner",
+    "avatarUrl": "",
+    "bannerUrl": "",
+    "theme": "blue",
+    "isLocked": true,
+    "pinCode": "4321",
+    "links": [
+      {
+        "name": "Facebook",
+        "type": "website",
+        "detail": "Mitsu Kazuwara",
+        "url": "https://www.facebook.com/share/1Lr5Mn9bWn/"
+      }
+    ]
   }
 }
