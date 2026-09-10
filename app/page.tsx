@@ -204,9 +204,9 @@ export default function HomePage() {
               © {new Date().getFullYear()} Mitsu Smart Card. All rights reserved.
             </p>
             <div className="flex gap-4 text-xs text-slate-400">
-              <a href="#" className="hover:text-white transition">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition">Terms of Service</a>
-              <a href="#" className="hover:text-white transition">Contact Support</a>
+            <a href="https://www.mitsu.cards/privacy" className="hover:text-white transition">Privacy Policy</a>
+            <a href="https://www.mitsu.cards/terms" className="hover:text-white transition">Terms and Conditions</a>
+            <a href="https://www.mitsu.cards/support" className="hover:text-white transition">Contact Support</a>
             </div>
           </div>
       </footer>
