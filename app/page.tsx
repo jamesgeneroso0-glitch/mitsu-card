@@ -65,32 +65,32 @@ export default function HomePage() {
       {/* Background Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
-      {/* Hero Section */}
+      {/* Hero Section (Nilagyan ng ~1 second / 1000ms base delay ang bawat kasunod na elemento) */}
       <div className="max-w-4xl text-center mt-8 sm:mt-16 relative z-10 flex flex-col items-center">
         
         {/* Badge */}
-        <ScrollReveal delay={0}>
+        <ScrollReveal delay={1000}>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 text-xs sm:text-sm font-medium mb-6 drop-shadow-[0_2px_8px_rgba(168,85,247,0.2)]">
             <Sparkles size={14} className="animate-pulse" /> Next-Gen NFC Smart Cards
           </div>
         </ScrollReveal>
         
         {/* Main Title */}
-        <ScrollReveal delay={150}>
+        <ScrollReveal delay={1150}>
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-tight text-slate-100 mb-4">
             Connect effortlessly with <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(192,38,211,0.35)]">Mitsu Smart Card</span>
           </h1>
         </ScrollReveal>
 
         {/* Subtitle */}
-        <ScrollReveal delay={300}>
+        <ScrollReveal delay={1300}>
           <p className="text-slate-400 text-base sm:text-lg mb-8 max-w-xl mx-auto">
             Share your socials, portfolio, contact details, and gaming profiles with just a single tap.
           </p>
         </ScrollReveal>
 
         {/* Action Button */}
-        <ScrollReveal delay={450}>
+        <ScrollReveal delay={1450}>
           <a 
             href={productUrl}
             target="_blank"
@@ -106,7 +106,7 @@ export default function HomePage() {
 
       {/* How It Works Section */}
       <div className="max-w-4xl w-full my-16 relative z-10">
-        <ScrollReveal>
+        <ScrollReveal delay={200}>
           <h2 className="text-2xl font-bold text-center text-slate-100 mb-8">
             How It Works
           </h2>
@@ -114,7 +114,7 @@ export default function HomePage() {
 
         {/* 3 Containers/Boxes - Magpo-pop up isa-isa habang naka-scroll */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <ScrollReveal delay={100}>
+          <ScrollReveal delay={350}>
             <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl text-center hover:border-slate-700 transition">
               <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 font-bold flex items-center justify-center mx-auto mb-4 border border-purple-500/20">1</div>
               <h3 className="font-semibold text-sm text-slate-200">Tap the Card</h3>
@@ -122,7 +122,7 @@ export default function HomePage() {
             </div>
           </ScrollReveal>
 
-          <ScrollReveal delay={250}>
+          <ScrollReveal delay={500}>
             <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl text-center hover:border-slate-700 transition">
               <div className="w-10 h-10 rounded-xl bg-pink-500/10 text-pink-400 font-bold flex items-center justify-center mx-auto mb-4 border border-pink-500/20">2</div>
               <h3 className="font-semibold text-sm text-slate-200">Open Notification</h3>
@@ -130,7 +130,7 @@ export default function HomePage() {
             </div>
           </ScrollReveal>
 
-          <ScrollReveal delay={400}>
+          <ScrollReveal delay={650}>
             <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl text-center hover:border-slate-700 transition">
               <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 font-bold flex items-center justify-center mx-auto mb-4 border border-cyan-500/20">3</div>
               <h3 className="font-semibold text-sm text-slate-200">Save & Connect</h3>
@@ -142,14 +142,14 @@ export default function HomePage() {
 
       {/* Why Choose Mitsu Card Section */}
       <div className="max-w-4xl w-full mb-16 relative z-10">
-        <ScrollReveal>
+        <ScrollReveal delay={200}>
           <h2 className="text-2xl font-bold text-center text-slate-100 mb-8">
             Why Choose Mitsu Smart Card?
           </h2>
         </ScrollReveal>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <ScrollReveal delay={100}>
+          <ScrollReveal delay={350}>
             <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 text-center transition-all duration-200 hover:border-purple-500/40">
               <Smartphone size={28} className="text-purple-400 mx-auto mb-3" />
               <h3 className="font-semibold text-base text-slate-200 mb-1">One Tap Share</h3>
@@ -157,7 +157,7 @@ export default function HomePage() {
             </div>
           </ScrollReveal>
 
-          <ScrollReveal delay={250}>
+          <ScrollReveal delay={500}>
             <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 text-center transition-all duration-200 hover:border-pink-500/40">
               <CreditCard size={28} className="text-pink-400 mx-auto mb-3" />
               <h3 className="font-semibold text-base text-slate-200 mb-1">Custom Designs</h3>
@@ -165,7 +165,7 @@ export default function HomePage() {
             </div>
           </ScrollReveal>
 
-          <ScrollReveal delay={400}>
+          <ScrollReveal delay={650}>
             <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 text-center transition-all duration-200 hover:border-cyan-500/40">
               <Share2 size={28} className="text-cyan-400 mx-auto mb-3" />
               <h3 className="font-semibold text-base text-slate-200 mb-1">Update Anytime</h3>
@@ -177,13 +177,13 @@ export default function HomePage() {
 
       {/* Supported Platforms Grid */}
       <div className="max-w-3xl w-full my-8 text-center relative z-10">
-        <ScrollReveal>
+        <ScrollReveal delay={200}>
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-4">
             Supported Integration Profiles
           </p>
         </ScrollReveal>
         
-        <ScrollReveal delay={150}>
+        <ScrollReveal delay={350}>
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
             {['Instagram', 'TikTok', 'Facebook', 'Twitter','LinkedIn', 'YouTube', 'Spotify', 'Discord', 'Steam', ' + ', 'Custom Link'].map((platform, i) => (
               <span 

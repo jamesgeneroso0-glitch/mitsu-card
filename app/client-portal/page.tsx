@@ -393,7 +393,7 @@ export default function ClientPortalPage() {
     }
 
     const clientData = {
-      name: name || 'John Doe',
+      name: name || 'Mitsu Kazuwara',
       subtitle: subtitle || 'Subtitle / Role',
       avatarUrl,
       bannerUrl,
@@ -438,7 +438,7 @@ export default function ClientPortalPage() {
 
   const initials = name
     ? name.trim().split(/\s+/).map((n) => n[0]).join("").toUpperCase()
-    : 'JD';
+    : 'MK';
 
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center py-6 px-3 sm:py-10 sm:px-4 relative overflow-x-hidden">
@@ -472,20 +472,6 @@ export default function ClientPortalPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            
-            {/* ERROR / INVALID MESSAGE BOX */}
-            {message && (
-              <div className={`p-4 rounded-xl border text-xs sm:text-sm font-medium leading-relaxed whitespace-pre-line flex items-start gap-2.5 ${
-                message.startsWith('Success!') 
-                  ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/30' 
-                  : 'bg-rose-950/40 text-rose-400 border-rose-500/30'
-              }`}>
-                {message.startsWith('Invalid Request') || message.startsWith('Error:') ? (
-                  <AlertCircle size={18} className="shrink-0 text-rose-400 mt-0.5" />
-                ) : null}
-                <div>{message}</div>
-              </div>
-            )}
               
             {/* Automated Slug / ID Container */}
             <div>
@@ -523,7 +509,7 @@ export default function ClientPortalPage() {
                 type="text" 
                 value={name} 
                 onChange={(e) => setName(e.target.value)} 
-                placeholder="e.g. John Doe"
+                placeholder="e.g. Mitsu Kazuwara"
                 required
                 className="w-full px-3 py-2 mt-1.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg text-white text-sm outline-none transition-all"
               />
@@ -714,7 +700,7 @@ export default function ClientPortalPage() {
                 />
                 <input 
                   type="text" 
-                  placeholder="Username / Subtitle (e.g. @john.doe)" 
+                  placeholder="Username / Subtitle (e.g. @mitsu.kzwr)" 
                   value={link.detail} 
                   onChange={(e) => handleLinkChange(index, 'detail', e.target.value)}
                   required
@@ -739,8 +725,22 @@ export default function ClientPortalPage() {
               <p className="text-xs text-rose-400 text-center">Maximum limit of 3 links reached.</p>
             )}
 
-            {/* Action Section */}
-            <div className="mt-3">
+            {/* Action Section with Error Message Box Placed Right Above/Near Save & Publish */}
+            <div className="mt-3 flex flex-col gap-3">
+              {/* ERROR / INVALID MESSAGE BOX (Nakalagay na dito sa ibaba malapit sa Save & Publish button) */}
+              {message && (
+                <div className={`p-4 rounded-xl border text-xs sm:text-sm font-medium leading-relaxed whitespace-pre-line flex items-start gap-2.5 ${
+                  message.startsWith('Success!') 
+                    ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/30' 
+                    : 'bg-rose-950/40 text-rose-400 border-rose-500/30'
+                }`}>
+                  {message.startsWith('Invalid Request') || message.startsWith('Error:') ? (
+                    <AlertCircle size={18} className="shrink-0 text-rose-400 mt-0.5" />
+                  ) : null}
+                  <div>{message}</div>
+                </div>
+              )}
+
               <button 
                 type="submit" 
                 disabled={loading} 
@@ -794,8 +794,8 @@ export default function ClientPortalPage() {
             )}
               </div>
 
-              <h1 className="text-lg font-bold text-white tracking-tight break-words drop-shadow-sm">{name || 'John Doe'}</h1>
-              <p className={`text-xs font-semibold ${currentTheme.accent} mt-0.5 break-words drop-shadow-sm`}>{subtitle || 'Me'}</p>
+              <h1 className="text-lg font-bold text-white tracking-tight break-words drop-shadow-sm">{name || 'Mitsu Kazuwara'}</h1>
+              <p className={`text-xs font-semibold ${currentTheme.accent} mt-0.5 break-words drop-shadow-sm`}>{subtitle || 'Mitsu Kazuwara'}</p>
 
               <div className="mt-4">
                 <div className={`w-full py-2.5 rounded-xl text-xs font-bold ${currentTheme.btnBg} shadow-lg flex items-center justify-center gap-2 transition-all cursor-default`}>
