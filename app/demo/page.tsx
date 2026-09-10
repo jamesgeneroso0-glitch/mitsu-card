@@ -34,9 +34,9 @@ export default function Home() {
         badgeBg: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
       },
       links: [
-        { name: "Instagram", detail: "@mitsu.kzwr", url: "https://www.instagram.com/mitsu.kzwr/", icon: User },
-        { name: "Facebook", detail: "/Mitsu_Kazuwara", url: "https://www.facebook.com/profile.php?id=61593941820561", icon: MessageCircle },
-        { name: "TikTok", detail: "@mitsukzwr12", url: "https://www.tiktok.com/@mitsukzwr12", icon: Globe }
+        { name: "Instagram", detail: "@mitsu.kzwr", url: "https://www.instagram.com", icon: User },
+        { name: "Facebook", detail: "Mitsu Kazuwara", url: "https://www.facebook.com", icon: MessageCircle },
+        { name: "TikTok", detail: "@mitsukzwr12", url: "https://www.tiktok.com", icon: Globe }
       ]
     },
     gaming: {
@@ -52,7 +52,7 @@ export default function Home() {
       },
       links: [
         { name: "Valorant", detail: "Mitsu #PH1", url: "https://tracker.gg/valorant", icon: ShieldAlert },
-        { name: "League of Legends", detail: "Diamond III", url: "https://www.leagueoflegends.com", icon: Trophy },
+        { name: "League of Legends", detail: "Kzwra.12", url: "https://www.leagueoflegends.com", icon: Trophy },
         { name: "Steam", detail: "View Inventory", url: "https://steamcommunity.com", icon: Gamepad2 }
       ]
     },
@@ -85,7 +85,7 @@ export default function Home() {
         badgeBg: "bg-rose-500/10 text-rose-400 border-rose-500/20"
       },
       links: [
-        { name: "YouTube", detail: "Watch Vlogs", url: "https://www.youtube.com", icon: Tv },
+        { name: "YouTube", detail: "Watch Vlog", url: "https://www.youtube.com", icon: Tv },
         { name: "Spotify", detail: "Listen Now", url: "https://spotify.com", icon: Music },
         { name: "X", detail: "@mitsu.kzwr", url: "https://twitter.com", icon: Globe }
       ]
