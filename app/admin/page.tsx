@@ -22,7 +22,8 @@ import {
   Image as ImageIcon,
   AlertCircle,
   Sparkles,
-  Info
+  Info,
+  ShieldCheck
 } from 'lucide-react';
 
 const themeStyles: Record<string, {
@@ -231,28 +232,23 @@ const getIcon = (type: string) => {
   const formatted = type.trim().toLowerCase();
 
   switch (formatted) {
-    case 'instagram': return <Instagram size={16} className="text-pink-400" />;
-    case 'facebook': return <Facebook size={16} className="text-blue-400" />;
-    case 'tiktok': return <Globe size={16} className="text-cyan-400" />;
-    case 'valorant': return <Gamepad2 size={16} className="text-red-400" />;
+    case 'instagram': return <User size={18} className="text-pink-400" />;
+    case 'facebook': return <MessageCircle size={18} className="text-blue-400" />;
+    case 'tiktok': return <Globe size={18} className="text-cyan-400" />;
+    case 'valorant': return <Gamepad2 size={18} className="text-red-400" />;
     case 'league of legends':
-    case 'lol': return <Swords size={16} className="text-amber-400" />;
-    case 'steam': return <Gamepad2 size={16} className="text-indigo-400" />;
+    case 'lol': return <Swords size={18} className="text-amber-400" />;
+    case 'steam': return <Gamepad2 size={18} className="text-indigo-400" />;
     case 'gdrive':
-    case 'google drive': return <HardDrive size={16} className="text-yellow-400" />;
-    case 'upwork': return <Briefcase size={16} className="text-emerald-400" />;
-    case 'canva': return <Palette size={16} className="text-sky-400" />;
-    case 'youtube': return <Youtube size={16} className="text-red-500" />;
-    case 'spotify': return <Music size={16} className="text-green-400" />;
-    case 'threads': return <AtSign size={16} className="text-slate-200" />;
+    case 'google drive': return <HardDrive size={18} className="text-yellow-400" />;
+    case 'upwork': return <Briefcase size={18} className="text-emerald-400" />;
+    case 'canva': return <Palette size={18} className="text-sky-400" />;
+    case 'youtube': return <Video size={18} className="text-red-500" />;
+    case 'spotify': return <Music size={18} className="text-green-400" />;
+    case 'threads': return <AtSign size={18} className="text-slate-200" />;
     case 'x':
-    case 'twitter': return <Twitter size={16} className="text-sky-400" />;
-    case 'github': return <Github size={16} className="text-purple-400" />;
-    case 'linkedin': return <Linkedin size={16} className="text-blue-500" />;
-    case 'discord': return <MessageCircle size={16} className="text-indigo-400" />;
-    case 'telegram': return <Send size={16} className="text-sky-400" />;
-    case 'twitch': return <Twitch size={16} className="text-purple-400" />;
-    default: return <Code2 size={16} className="text-slate-400" />;
+    case 'twitter': return <X size={18} className="text-sky-400" />;
+    default: return <ExternalLink size={18} className="text-slate-400" />;
   }
 };
 
@@ -261,6 +257,7 @@ export default function AdminPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [savedAuth, setSavedAuth] = useState({ username: '', password: '' });
+  const [loginError, setLoginError] = useState('');
 
   const [clientId, setClientId] = useState('');
   const [copied, setCopied] = useState(false);
@@ -314,9 +311,17 @@ export default function AdminPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username && password) {
+    setLoginError('');
+
+    // Strict validation para sa admin username at password
+    const ADMIN_USER = 'admin';
+    const ADMIN_PASS = 'mitsujuvqe0101';
+
+    if (username === ADMIN_USER && password === ADMIN_PASS) {
       setSavedAuth({ username, password });
       setIsAuthenticated(true);
+    } else {
+      setLoginError('Invalid username or password. Access denied.');
     }
   };
 
@@ -403,10 +408,8 @@ export default function AdminPage() {
         const text = event.target?.result as string;
         const jsonContent = JSON.parse(text);
         
-        const importedClientId = jsonContent.clientId || clientId;
         const clientData = jsonContent.clientData || jsonContent;
 
-        // Auto-fill state fields para sa Live Preview at Admin forms
         if (jsonContent.clientId) setClientId(jsonContent.clientId);
         if (clientData.name) setName(clientData.name);
         if (clientData.subtitle) setSubtitle(clientData.subtitle);
@@ -433,7 +436,20 @@ export default function AdminPage() {
         <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:20px_20px]"></div>
         
         <form onSubmit={handleLogin} className={`bg-slate-900/95 backdrop-blur-2xl border ${randomAdminBgStyle.border} p-8 rounded-3xl w-full max-w-md space-y-6 shadow-2xl relative z-10`}>
-          <h1 className={`text-2xl font-extrabold text-center ${randomAdminBgStyle.accent} tracking-wide`}>Mitsu Admin Access</h1>
+          <div className="text-center space-y-2">
+            <div className="inline-flex p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 mb-1">
+              <ShieldCheck size={28} />
+            </div>
+            <h1 className={`text-2xl font-extrabold ${randomAdminBgStyle.accent} tracking-wide`}>Mitsu Admin Portal</h1>
+            <p className="text-xs text-slate-400">Enter secure administrator credentials to proceed.</p>
+          </div>
+
+          {loginError && (
+            <div className="p-3 bg-red-500/10 border border-red-500/30 text-red-400 text-xs rounded-xl text-center font-medium">
+              {loginError}
+            </div>
+          )}
+
           <div className="space-y-1">
             <label className="text-xs font-semibold text-slate-300">Username</label>
             <input
@@ -441,6 +457,7 @@ export default function AdminPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white mt-1 text-sm focus:outline-none focus:border-indigo-400"
+              placeholder="Enter username"
               required
             />
           </div>
@@ -451,11 +468,12 @@ export default function AdminPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white mt-1 text-sm focus:outline-none focus:border-indigo-400"
+              placeholder="••••••••"
               required
             />
           </div>
           <button type="submit" className={`w-full ${randomAdminBgStyle.btnBg} font-bold py-3.5 rounded-xl text-sm transition shadow-lg cursor-pointer`}>
-            Login
+            Secure Login
           </button>
         </form>
       </main>
@@ -482,8 +500,9 @@ export default function AdminPage() {
         </div>
 
         {statusMsg && (
-          <div className="p-3 bg-slate-900/90 border border-slate-700 text-sm rounded-xl font-medium shadow-lg backdrop-blur whitespace-pre-line">
-            {statusMsg}
+          <div className="p-3 bg-slate-900/90 border border-slate-700 text-sm rounded-xl font-medium shadow-lg backdrop-blur whitespace-pre-line flex items-center gap-2">
+            <Info size={16} className="text-indigo-400 shrink-0" />
+            <span>{statusMsg}</span>
           </div>
         )}
 
@@ -695,9 +714,9 @@ export default function AdminPage() {
               <Sparkles size={14} /> Live Digital Card Preview
             </div>
                 
-            <div className={`w-full max-w-[320px] bg-gradient-to-b ${currentTheme.bg} border-2 ${currentTheme.border} rounded-3xl text-center shadow-2xl relative overflow-hidden backdrop-blur-md transition-all duration-300 my-auto transform-gpu`}>
+            <div className={`w-full max-w-[320px] bg-gradient-to-b ${currentTheme.bg} border-2 ${currentTheme.border} rounded-3xl text-center shadow-2xl relative overflow-hidden backdrop-blur-md transition-all duration-300 my-auto transform-gpu flex flex-col`}>
               
-              <div className="w-full h-28 relative overflow-hidden bg-slate-950 border-b border-white/10 flex items-start justify-between p-3">
+              <div className="w-full h-28 relative overflow-hidden bg-slate-950 border-b border-white/10 flex items-start justify-between p-3 shrink-0">
                 {bannerUrl ? (
                   <img src={bannerUrl} alt="Banner Preview" className="absolute inset-0 w-full h-full object-cover" />
                 ) : (
@@ -713,10 +732,10 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              <div className="p-4 sm:p-5 pt-0 relative">
+              <div className="p-4 sm:p-5 pt-0 relative flex-1 flex flex-col">
                 <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 ${currentTheme.glow} rounded-full blur-2xl opacity-40 pointer-events-none transform-gpu`} />
 
-                <div className={`relative -mt-[44px] w-22 h-22 rounded-full bg-gradient-to-tr ${currentTheme.avatarGlow} mx-auto mb-2 flex items-center justify-center text-2xl font-bold text-white shadow-2xl ring-4 ring-slate-900 overflow-hidden z-10`}>
+                <div className={`relative -mt-[44px] w-22 h-22 rounded-full bg-gradient-to-tr ${currentTheme.avatarGlow} mx-auto mb-2 flex items-center justify-center text-2xl font-bold text-white shadow-2xl ring-4 ring-slate-900 overflow-hidden z-10 shrink-0`}>
                   {avatarUrl ? (
                     <img src={avatarUrl} alt="Avatar Preview" className="w-full h-full object-cover" />
                   ) : (
@@ -727,14 +746,14 @@ export default function AdminPage() {
                 <h1 className="text-lg font-bold text-white tracking-tight break-words drop-shadow-sm">{name || 'John Doe'}</h1>
                 <p className={`text-xs font-semibold ${currentTheme.accent} mt-0.5 break-words drop-shadow-sm`}>{subtitle || 'Me'}</p>
 
-                <div className="mt-4">
+                <div className="mt-4 shrink-0">
                   <div className={`w-full py-2.5 rounded-xl text-xs font-bold ${currentTheme.btnBg} shadow-lg flex items-center justify-center gap-2 transition-all cursor-default`}>
                     <span>👤+</span> Save Contact
                   </div>
                 </div>
 
-                {/* Links Container sa Preview Card (Awtomatikong nag-a-update at nagpapakita ng Lucide symbols) */}
-                <div className="mt-4 flex flex-col gap-2 text-left max-h-[220px] overflow-y-auto pr-1">
+                {/* Links Container sa Preview Card */}
+                <div className="mt-4 flex flex-col gap-2 text-left max-h-[220px] overflow-y-auto pr-1 flex-1">
                   {links.map((l, i) => (l.name || l.url) ? (
                     <div key={i} className="w-full p-2.5 rounded-xl bg-slate-900/80 border border-slate-800/90 text-xs text-white flex items-center justify-between shadow-md transition-all hover:border-slate-700">
                       <div className="flex items-center gap-2.5 truncate min-w-0">
@@ -750,6 +769,12 @@ export default function AdminPage() {
                     </div>
                   ) : null)}
                 </div>
+
+                {/* Footer with icon.png and POWERED BY MSC */}
+                <div className="mt-6 pt-3 border-t border-white/10 flex items-center justify-center gap-2 shrink-0">
+                  <img src="/icon.png" alt="MSC Logo" className="w-5 h-5 object-contain rounded-full bg-slate-800 p-0.5 border border-slate-700" />
+                  <span className="text-[10px] font-extrabold tracking-widest text-slate-300 uppercase">POWERED BY MSC</span>
+                </div>
               </div>
             </div>
 
@@ -762,7 +787,12 @@ export default function AdminPage() {
                 onChange={handleJsonFileUpload}
                 className="w-full text-[11px] text-slate-400 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-[10px] file:font-semibold file:bg-slate-800 file:text-white cursor-pointer"
               />
-              {importStatus && <p className="text-[10px] text-slate-300 mt-1">{importStatus}</p>}
+              {importStatus && (
+                <p className="text-[10px] text-slate-300 mt-1 flex items-center gap-1">
+                  <AlertCircle size={12} className="text-indigo-400" />
+                  {importStatus}
+                </p>
+              )}
             </div>
 
           </div>
