@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Sparkles, Zap, ShieldCheck, Smartphone, Send, Mail, Phone, MapPin, CheckCircle, Layers, QrCode } from 'lucide-react';
 import Image from 'next/image';
@@ -47,9 +47,17 @@ function FAQItem({ q, a, index }: { q: string; a: string; index: number }) {
 }
 
 export default function ProductLandingPage() {
+  const [isReady, setIsReady] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [cardTheme, setCardTheme] = useState<'midnight' | 'rose' | 'emerald'>('midnight');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -57,7 +65,6 @@ export default function ProductLandingPage() {
     message: ''
   });
 
-  // --- Web3Forms Handler ---
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -137,9 +144,13 @@ export default function ProductLandingPage() {
     }
   ];
 
+  // Haharangan muna ng buong itim na background ang screen sa unang 2 segundo
+  if (!isReady) {
+    return <div className="min-h-screen bg-slate-950" />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-white selection:bg-indigo-500 selection:text-white overflow-hidden flex flex-col justify-between">
-      
       <div>
         {/* --- HERO & INTERACTIVE DEMO SECTION --- */}
         <section className="relative overflow-hidden pt-20 pb-12 px-6 flex flex-col items-center justify-center">
@@ -375,7 +386,6 @@ export default function ProductLandingPage() {
             </motion.p>
           </div>
 
-          {/* Black & White Deck Showcase */}
           <div className="flex justify-center mb-16">
             <div className="relative w-72 h-96 flex items-center justify-center transform-gpu">
               {/* Back Card: White Card */}
@@ -418,7 +428,6 @@ export default function ProductLandingPage() {
             </div>
           </div>
 
-          {/* Specs List */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
             <motion.div 
               initial={{ opacity: 0, y: 15 }}
@@ -502,7 +511,6 @@ export default function ProductLandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-            {/* Contact Details */}
             <motion.div 
               initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -528,7 +536,6 @@ export default function ProductLandingPage() {
               </div>
             </motion.div>
 
-            {/* Contact Form */}
             <motion.form 
               initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -634,7 +641,6 @@ export default function ProductLandingPage() {
             </p>
           </div>
 
-          {/* Pricing Highlight Box */}
           <motion.div 
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -654,7 +660,6 @@ export default function ProductLandingPage() {
             </p>
           </motion.div>
 
-          {/* Accordion Questions List */}
           <div className="flex flex-col gap-3">
             {faqData.map((faq, index) => (
               <FAQItem key={faq.q} q={faq.q} a={faq.a} index={index} />
@@ -663,11 +668,9 @@ export default function ProductLandingPage() {
         </section>
       </div>
 
-      {/* --- FOOTER SECTION --- */}
       <footer className="bg-slate-950 border-t border-slate-900 py-10 px-6 text-center text-xs text-slate-500">
         <p>© {new Date().getFullYear()} Mitsu Smart Card. All rights reserved.</p>
       </footer>
-
     </div>
   );
 }
