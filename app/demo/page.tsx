@@ -182,7 +182,7 @@ export default function Home() {
 
               <div className="relative z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950/70 border border-white/15 text-[10px] text-slate-200 font-medium tracking-wide backdrop-blur-md">
                 <Radio size={11} className={`${current.theme.accent}`} />
-                <span>MSC ACTIVE</span>
+                <span>NFC ACTIVE</span>
               </div>
 
               <div className="relative z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-950/70 border border-white/15 text-[10px] text-emerald-400 font-semibold tracking-wide uppercase backdrop-blur-md">
@@ -271,7 +271,7 @@ export default function Home() {
             </p>
             <div className="flex gap-4 text-xs text-slate-400">
             <a href="https://www.mitsu.cards/privacy" className="hover:text-white transition">Privacy Policy</a>
-            <a href="https://www.mitsu.cards/terms" className="hover:text-white transition">Terms of Service</a>
+            <a href="https://www.mitsu.cards/terms" className="hover:text-white transition">Terms and Conditions</a>
             <a href="https://www.mitsu.cards/support" className="hover:text-white transition">Contact Support</a>
             </div>
           </div>

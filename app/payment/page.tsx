@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { User, MessageCircle, Globe, Gamepad2, Swords, ExternalLink, ShieldCheck, Sparkles } from 'lucide-react';
+import { User, MessageCircle, Globe, Gamepad2, Swords, ExternalLink, ShieldCheck, Sparkles, ArrowRight } from 'lucide-react';
 
 const plainTheme = {
   bg: "from-slate-900 via-slate-900 to-slate-950",
@@ -31,7 +31,7 @@ const getIcon = (type: string) => {
 
 export default function PaymentPage() {
   const [cardData, setCardData] = useState<any>(null);
-  const [selectedMethod, setSelectedMethod] = useState<'gcash' | 'paypal' | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState(false);
   const [refNumber, setRefNumber] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
@@ -46,17 +46,11 @@ export default function PaymentPage() {
   const currentTheme = (cardData?.theme && themeStyles[cardData.theme]) ? themeStyles[cardData.theme] : plainTheme;
 
   const handleGcashRedirect = () => {
-    setSelectedMethod('gcash');
-    // Replace with your actual GCash link, QR link, or web portal
-    const gcashWebLink = "https://m.gcash.com/"; 
-    window.open(gcashWebLink, '_blank');
-  };
-
-  const handlePaypalRedirect = () => {
-    setSelectedMethod('paypal');
-    // Replace with your actual PayPal.me link (e.g. https://paypal.me/yourusername/499PHP)
-    const paypalMeLink = "https://paypal.me/"; 
-    window.open(paypalMeLink, '_blank');
+    setSelectedMethod(true);
+    // GCash Express Send link format na may pre-filled na number at amount (₱499)
+    // Gamit ang GCash URL scheme / web payment bridge
+    const gcashDirectLink = "https://m.gcash.com/send?number=09949409150&amount=499"; 
+    window.open(gcashDirectLink, '_blank');
   };
 
   const handleVerifyAndPublish = async (e: React.FormEvent) => {
@@ -102,6 +96,29 @@ export default function PaymentPage() {
     );
   }
 
+  if (!cardData) {
+    return (
+      <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
+        <div className="max-w-md bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl flex flex-col items-center">
+          <div className="w-14 h-14 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-2xl flex items-center justify-center mb-4">
+            <Sparkles size={24} />
+          </div>
+          <h1 className="text-xl font-bold mb-2">No Preview Card Found</h1>
+          <p className="text-slate-400 text-xs sm:text-sm mb-6">
+            You haven't customized your digital profile card yet. Please create and customize your card first before proceeding to checkout.
+          </p>
+          <a 
+            href="https://www.mitsu.cards/client-portal"
+            className="w-full py-3 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-500/25"
+          >
+            <span>Let's Customize Your MSC</span>
+            <ArrowRight size={16} />
+          </a>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-slate-950 text-white p-4 sm:p-8 flex flex-col items-center justify-center relative overflow-hidden">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
@@ -111,7 +128,7 @@ export default function PaymentPage() {
           <Sparkles size={14} /> Secure Checkout
         </span>
         <h1 className="text-2xl sm:text-3xl font-bold">Your customized preview card will be ready in just a few minutes!</h1>
-        <p className="text-xs sm:text-sm text-slate-400 mt-1">Review your preview card below and click GCash or PayPal to proceed with direct payment[cite: 1].</p>
+        <p className="text-xs sm:text-sm text-slate-400 mt-1">Review your preview card below and click GCash to automatically generate your ₱499 payment[cite: 1].</p>
       </div>
 
       <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-start relative z-10">
@@ -122,89 +139,79 @@ export default function PaymentPage() {
             <Sparkles size={14} /> Your Live Preview Card
           </h2>
 
-          {cardData ? (
-            <div className={`w-full max-w-[300px] bg-gradient-to-b ${currentTheme.bg} border-2 ${currentTheme.border} rounded-3xl text-center shadow-2xl relative overflow-hidden backdrop-blur-md`}>
-              <div className="w-full h-24 relative overflow-hidden bg-slate-950 border-b border-white/10 flex items-start justify-between p-3">
-                {cardData.bannerUrl ? (
-                  <img src={cardData.bannerUrl} alt="Banner" className="absolute inset-0 w-full h-full object-cover" />
-                ) : (
-                  <div className={`absolute inset-0 bg-gradient-to-br ${currentTheme.avatarGlow} opacity-40`} />
-                )}
-                <div className="relative z-10 text-[10px] bg-slate-900/90 px-2 py-0.5 rounded-full text-slate-200">
-                  {cardData.isLocked ? '🔒 Locked' : '🔓 Unlocked'}
-                </div>
-              </div>
-
-              <div className="p-4 pt-0 relative">
-                <div className={`relative -mt-10 w-20 h-20 rounded-full bg-gradient-to-tr ${currentTheme.avatarGlow} mx-auto mb-2 flex items-center justify-center text-xl font-bold text-white shadow-xl ring-4 ring-slate-900 overflow-hidden`}>
-                  {cardData.avatarUrl ? (
-                    <img src={cardData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    <span>{cardData.name?.[0] || 'M'}</span>
-                  )}
-                </div>
-
-                <h1 className="text-base font-bold text-white">{cardData.name}</h1>
-                <p className={`text-xs font-semibold ${currentTheme.accent}`}>{cardData.subtitle}</p>
-
-                <div className="mt-3 flex flex-col gap-2 text-left">
-                  {cardData.links?.map((l: any, i: number) => (
-                    <div key={i} className="p-2 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-white flex items-center justify-between">
-                      <div className="flex items-center gap-2 truncate">
-                        <div className="w-6 h-6 rounded bg-slate-800 flex items-center justify-center shrink-0">
-                          {getIcon(l.name)}
-                        </div>
-                        <div className="truncate">
-                          <div className="font-semibold">{l.name}</div>
-                          <div className="text-[10px] text-slate-400">{l.detail}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+          <div className={`w-full max-w-[300px] bg-gradient-to-b ${currentTheme.bg} border-2 ${currentTheme.border} rounded-3xl text-center shadow-2xl relative overflow-hidden backdrop-blur-md`}>
+            <div className="w-full h-24 relative overflow-hidden bg-slate-950 border-b border-white/10 flex items-start justify-between p-3">
+              {cardData.bannerUrl ? (
+                <img src={cardData.bannerUrl} alt="Banner" className="absolute inset-0 w-full h-full object-cover" />
+              ) : (
+                <div className={`absolute inset-0 bg-gradient-to-br ${currentTheme.avatarGlow} opacity-40`} />
+              )}
+              <div className="relative z-10 text-[10px] bg-slate-900/90 px-2 py-0.5 rounded-full text-slate-200">
+                {cardData.isLocked ? '🔒 Locked' : '🔓 Unlocked'}
               </div>
             </div>
-          ) : (
-            <p className="text-sm text-slate-400 text-center py-10">No card data found. Please customize your card first in the Client Portal.</p>
-          )}
+
+            <div className="p-4 pt-0 relative">
+              <div className={`relative -mt-10 w-20 h-20 rounded-full bg-gradient-to-tr ${currentTheme.avatarGlow} mx-auto mb-2 flex items-center justify-center text-xl font-bold text-white shadow-xl ring-4 ring-slate-900 overflow-hidden`}>
+                {cardData.avatarUrl ? (
+                  <img src={cardData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <span>{cardData.name?.[0] || 'M'}</span>
+                )}
+              </div>
+
+              <h1 className="text-base font-bold text-white">{cardData.name}</h1>
+              <p className={`text-xs font-semibold ${currentTheme.accent}`}>{cardData.subtitle}</p>
+
+              <div className="mt-3 flex flex-col gap-2 text-left">
+                {cardData.links?.map((l: any, i: number) => (
+                  <div key={i} className="p-2 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-white flex items-center justify-between">
+                    <div className="flex items-center gap-2 truncate">
+                      <div className="w-6 h-6 rounded bg-slate-800 flex items-center justify-center shrink-0">
+                        {getIcon(l.name)}
+                      </div>
+                      <div className="truncate">
+                        <div className="font-semibold">{l.name}</div>
+                        <div className="text-[10px] text-slate-400">{l.detail}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* RIGHT COLUMN: DIRECT PAYMENT BUTTONS & REDIRECT */}
+        {/* RIGHT COLUMN: AUTOMATED GCASH REDIRECT */}
         <div className="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 shadow-xl">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold">Package Total</h2>
             <span className="text-xl font-black text-indigo-400">₱499</span>
           </div>
-          <p className="text-xs text-slate-400 mb-6">Click your preferred payment option to redirect directly to GCash or PayPal[cite: 1].</p>
+          <p className="text-xs text-slate-400 mb-6">Clicking the button below will automatically redirect you to GCash with the exact ₱499 amount[cite: 1].</p>
 
           <div className="flex flex-col gap-3 mb-6">
             <button 
               type="button"
               onClick={handleGcashRedirect}
               className={`w-full p-4 rounded-xl font-semibold flex items-center justify-between transition-all cursor-pointer ${
-                selectedMethod === 'gcash' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25' : 'bg-blue-600/20 border border-blue-500/40 hover:bg-blue-600/30 text-blue-300'
+                selectedMethod ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25' : 'bg-blue-600/20 border border-blue-500/40 hover:bg-blue-600/30 text-blue-300'
               }`}
             >
-              <span className="flex items-center gap-2">📱 Pay via GCash (₱499)</span>
-              <span className="text-xs underline">Open GCash ↗</span>
-            </button>
-
-            <button 
-              type="button"
-              onClick={handlePaypalRedirect}
-              className={`w-full p-4 rounded-xl font-semibold flex items-center justify-between transition-all cursor-pointer ${
-                selectedMethod === 'paypal' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25' : 'bg-indigo-600/20 border border-indigo-500/40 hover:bg-indigo-600/30 text-indigo-300'
-              }`}
-            >
-              <span className="flex items-center gap-2">💳 Pay via PayPal (₱499)</span>
-              <span className="text-xs underline">Open PayPal ↗</span>
+              <span className="flex items-center gap-2">📱 Pay ₱499 via GCash</span>
+              <span className="text-xs underline">Launch GCash ↗</span>
             </button>
           </div>
 
           {selectedMethod && (
             <form onSubmit={handleVerifyAndPublish} className="flex flex-col gap-4 border-t border-slate-800 pt-4">
+              <div className="p-3 bg-blue-950/30 border border-blue-500/20 rounded-xl text-xs text-slate-300">
+                <p className="font-semibold text-blue-400 mb-1">Payment Instruction:</p>
+                <p>Complete your payment in the GCash app, then enter your transaction reference number below to publish your card instantly[cite: 1].</p>
+              </div>
+
               <div>
-                <label className="text-xs font-medium text-slate-300">Enter your GCash/PayPal Reference No. or Transaction ID:</label>
+                <label className="text-xs font-medium text-slate-300">Enter your GCash Reference Number:</label>
                 <input 
                   type="text" 
                   value={refNumber} 
