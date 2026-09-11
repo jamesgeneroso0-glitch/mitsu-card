@@ -360,8 +360,8 @@ export default function ClientPortalPage() {
     setLinks(updatedLinks);
   };
 
-  // UPDATED: Save data to localStorage & redirect directly to the payment page
-  const handleSubmit = async (e: React.FormEvent) => {
+  // SAVE TO LOCALSTORAGE AND REDIRECT TO PAYMENT PAGE
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('');
 
@@ -392,10 +392,7 @@ export default function ClientPortalPage() {
       links,
     };
 
-    // Save configuration temporarily to localStorage so the payment page can read it
     localStorage.setItem('pending_mitsu_card', JSON.stringify(clientData));
-
-    // Redirect directly to the payment page
     window.location.href = 'https://www.mitsu.cards/payment';
   };
 

@@ -1,22 +1,20 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { User, MessageCircle, Globe, Gamepad2, Swords, HardDrive, Briefcase, Palette, Video, Music, AtSign, X, ExternalLink, ShieldCheck, Sparkles } from 'lucide-react';
+import { User, MessageCircle, Globe, Gamepad2, Swords, ExternalLink, ShieldCheck, Sparkles, QrCode } from 'lucide-react';
 
 const plainTheme = {
   bg: "from-slate-900 via-slate-900 to-slate-950",
   border: "border-slate-800 hover:border-slate-700",
   accent: "text-slate-400",
-  glow: "bg-slate-800/10",
   avatarGlow: "from-slate-700 to-slate-800",
-  btnBg: "bg-slate-800 text-slate-300",
 };
 
 const themeStyles: Record<string, any> = {
-  indigo: { bg: "from-slate-950 via-indigo-950/90 to-slate-950", border: "border-indigo-500/40", accent: "text-indigo-400", glow: "bg-indigo-600/30", avatarGlow: "from-indigo-500 to-blue-500", btnBg: "bg-indigo-600 text-white" },
-  midnight: { bg: "from-slate-950 via-purple-950/90 to-slate-950", border: "border-purple-500/40", accent: "text-purple-400", glow: "bg-purple-600/30", avatarGlow: "from-purple-500 to-pink-500", btnBg: "bg-purple-600 text-white" },
-  emerald: { bg: "from-slate-950 via-emerald-950/90 to-slate-950", border: "border-emerald-500/40", accent: "text-emerald-400", glow: "bg-emerald-600/30", avatarGlow: "from-emerald-500 to-teal-500", btnBg: "bg-emerald-600 text-white" },
-  rose: { bg: "from-slate-950 via-rose-950/90 to-slate-950", border: "border-rose-500/40", accent: "text-rose-400", glow: "bg-rose-600/30", avatarGlow: "from-rose-500 to-pink-500", btnBg: "bg-rose-600 text-white" },
-  obsidian: { bg: "from-black via-zinc-950 to-black", border: "border-zinc-600/50", accent: "text-zinc-200", glow: "bg-zinc-500/30", avatarGlow: "from-zinc-400 to-zinc-700", btnBg: "bg-zinc-800 text-white" },
+  indigo: { bg: "from-slate-950 via-indigo-950/90 to-slate-950", border: "border-indigo-500/40", accent: "text-indigo-400", avatarGlow: "from-indigo-500 to-blue-500" },
+  midnight: { bg: "from-slate-950 via-purple-950/90 to-slate-950", border: "border-purple-500/40", accent: "text-purple-400", avatarGlow: "from-purple-500 to-pink-500" },
+  emerald: { bg: "from-slate-950 via-emerald-950/90 to-slate-950", border: "border-emerald-500/40", accent: "text-emerald-400", avatarGlow: "from-emerald-500 to-teal-500" },
+  rose: { bg: "from-slate-950 via-rose-950/90 to-slate-950", border: "border-rose-500/40", accent: "text-rose-400", avatarGlow: "from-rose-500 to-pink-500" },
+  obsidian: { bg: "from-black via-zinc-950 to-black", border: "border-zinc-600/50", accent: "text-zinc-200", avatarGlow: "from-zinc-400 to-zinc-700" },
 };
 
 const getIcon = (type: string) => {
@@ -49,24 +47,27 @@ export default function PaymentPage() {
 
   const handleVerifyAndPublish = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedMethod) return;
+    if (!selectedMethod || !cardData) return;
     setIsVerifying(true);
 
-    // Simulate verification process (Dito mo ikakabit ang API call para i-save sa database at i-publish ang card)
     setTimeout(async () => {
       try {
-        // Pwede mong i-send dito ang cardData at payment reference sa backend API mo
-        await fetch('/api/admin/client', {
+        const response = await fetch('/api/admin/client', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ clientId: cardData.clientId, clientData }),
+          body: JSON.stringify({ clientId: cardData.clientId, clientData: cardData }),
         });
 
-        setIsVerifying(false);
-        setIsPublished(true);
-        localStorage.removeItem('pending_mitsu_card'); // Clear temporary data
+        if (response.ok) {
+          setIsVerifying(false);
+          setIsPublished(true);
+          localStorage.removeItem('pending_mitsu_card');
+        } else {
+          alert('Publishing failed. Please check server logs.');
+          setIsVerifying(false);
+        }
       } catch (err) {
-        alert('Verification failed. Please try again.');
+        alert('Connection error occurred.');
         setIsVerifying(false);
       }
     }, 2000);
@@ -74,25 +75,37 @@ export default function PaymentPage() {
 
   if (isPublished) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
+      <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
         <div className="max-w-md bg-slate-900 border border-emerald-500/30 p-8 rounded-2xl shadow-2xl">
-          <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">✓</div>
+          <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">✓</div>
           <h1 className="text-2xl font-bold mb-2">Payment Verified & Published!</h1>
-          <p className="text-slate-400 text-sm mb-6">Matagumpay na nakumpirma ang iyong bayad. Live na ngayon ang iyong Mitsu Smart Card!</p>
-          <a href={`/card/${cardData?.clientId || ''}`} className="inline-block w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition-all">
+          <p className="text-slate-400 text-sm mb-6">Matagumpay na nakumpirma ang iyong bayad. Live na ngayon ang iyong Mitsu Smart Card[cite: 1]!</p>
+          <a href={`/${cardData?.clientId || ''}`} className="inline-block w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition-all">
             View My Live Card 🚀
           </a>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-4 sm:p-8 flex flex-col items-center justify-center">
-      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+    <main className="min-h-screen bg-slate-950 text-white p-4 sm:p-8 flex flex-col items-center justify-center relative overflow-hidden">
+      
+      {/* Background Accent */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+
+      <div className="w-full max-w-4xl text-center mb-8 relative z-10">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-medium mb-2">
+          <Sparkles size={14} /> Secure Checkout
+        </span>
+        <h1 className="text-2xl sm:text-3xl font-bold">Ready na ang customized preview card mo sa ilang minuto na lang!</h1>
+        <p className="text-xs sm:text-sm text-slate-400 mt-1">Suriin ang iyong preview card sa ibaba at piliin ang iyong paraan ng pagbabayad upang tuluyang ma-publish ang iyong NFC card.</p>
+      </div>
+
+      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-start relative z-10">
         
-        {/* LEFT COLUMN: LIVE PREVIEW CARD NG CLIENT */}
-        <div className="flex flex-col items-center bg-slate-900/60 p-6 rounded-2xl border border-slate-800">
+        {/* LEFT COLUMN: EXACT LIVE PREVIEW CARD */}
+        <div className="flex flex-col items-center bg-slate-900/80 p-6 rounded-2xl border border-slate-800 shadow-xl">
           <h2 className="text-xs uppercase tracking-widest text-indigo-400 font-bold mb-4 flex items-center gap-1.5">
             <Sparkles size={14} /> Your Live Preview Card
           </h2>
@@ -140,14 +153,17 @@ export default function PaymentPage() {
               </div>
             </div>
           ) : (
-            <p className="text-sm text-slate-400">No card data found. Please complete the client portal form first.</p>
+            <p className="text-sm text-slate-400 text-center py-10">Walang nakitang data ng card. Mangyaring mag-customize muna sa Client Portal.</p>
           )}
         </div>
 
-        {/* RIGHT COLUMN: PAYMENT OPTIONS & VERIFICATION */}
-        <div className="bg-slate-900/90 p-6 rounded-2xl border border-slate-800">
-          <h2 className="text-xl font-bold mb-1">Complete Payment</h2>
-          <p className="text-xs text-slate-400 mb-6">Pumili ng paraan ng pagbabayad upang ma-publish ang iyong smart card (₱499 package fee).</p>
+        {/* RIGHT COLUMN: PAYMENT OPTIONS */}
+        <div className="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 shadow-xl">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-bold">Package Total</h2>
+            <span className="text-xl font-black text-indigo-400">₱499</span>
+          </div>
+          <p className="text-xs text-slate-400 mb-6">Pumili ng paraan ng pagbabayad. Direktang magre-redirect sa GCash o PayPal.</p>
 
           {!selectedMethod ? (
             <div className="flex flex-col gap-3">
@@ -172,21 +188,22 @@ export default function PaymentPage() {
               <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between text-sm">
                 <span className="text-slate-400">Selected Method:</span>
                 <span className="font-bold uppercase text-indigo-400">{selectedMethod}</span>
-                <button type="button" onClick={() => setSelectedMethod(null)} className="text-xs text-slate-500 underline">Change</button>
+                <button type="button" onClick={() => setSelectedMethod(null)} className="text-xs text-slate-500 underline cursor-pointer">Change</button>
               </div>
 
               {selectedMethod === 'gcash' && (
                 <div className="p-3 bg-blue-950/30 border border-blue-500/20 rounded-xl text-xs text-slate-300">
-                  <p className="font-semibold text-blue-400 mb-1">GCash Instructions:</p>
-                  <p>1. Mag-transfer ng ₱499 sa GCash: <strong>09XXXXXXXXX (Mitsu Card)</strong></p>
-                  <p>2. Ilagay sa ibaba ang Reference Number pagkatapos magbayad.</p>
+                  <p className="font-semibold text-blue-400 mb-1">GCash Direct Instructions:</p>
+                  <p>1. Magpadala ng ₱499 sa GCash account: <strong>09XXXXXXXXX (Mitsu Smart Card)</strong></p>
+                  <p>2. Pagkatapos magbayad, ilagay ang iyong GCash Reference Number sa ibaba para sa verification[cite: 1].</p>
                 </div>
               )}
 
               {selectedMethod === 'paypal' && (
                 <div className="p-3 bg-indigo-950/30 border border-indigo-500/20 rounded-xl text-xs text-slate-300">
-                  <p className="font-semibold text-indigo-400 mb-1">PayPal Instructions:</p>
-                  <p>I-click ang verification pagkatapos makumpleto ang secure PayPal transaction.</p>
+                  <p className="font-semibold text-indigo-400 mb-1">PayPal Direct Instructions:</p>
+                  <p>1. Kumpletuhin ang secure payment gamit ang PayPal[cite: 1].</p>
+                  <p>2. Ilagay ang Transaction ID/Reference sa ibaba para ma-verify agad ang iyong order.</p>
                 </div>
               )}
 
@@ -208,10 +225,10 @@ export default function PaymentPage() {
                 className="w-full py-3 bg-white text-black font-bold rounded-xl text-sm transition-all hover:bg-slate-200 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isVerifying ? (
-                  <>Verifying Payment...</>
+                  <>Verifying & Publishing Card...</>
                 ) : (
                   <>
-                    <ShieldCheck size={16} /> Verify & Publish Card
+                    <ShieldCheck size={16} /> Verify Payment & Publish Card
                   </>
                 )}
               </button>
@@ -220,6 +237,6 @@ export default function PaymentPage() {
         </div>
 
       </div>
-    </div>
+    </main>
   );
 }
