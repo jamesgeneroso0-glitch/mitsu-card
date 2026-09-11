@@ -182,7 +182,7 @@ export default function Home() {
 
               <div className="relative z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950/70 border border-white/15 text-[10px] text-slate-200 font-medium tracking-wide backdrop-blur-md">
                 <Radio size={11} className={`${current.theme.accent}`} />
-                <span>NFC ACTIVE</span>
+                <span>MSC ACTIVE</span>
               </div>
 
               <div className="relative z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-950/70 border border-white/15 text-[10px] text-emerald-400 font-semibold tracking-wide uppercase backdrop-blur-md">

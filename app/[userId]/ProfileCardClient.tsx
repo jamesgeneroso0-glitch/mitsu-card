@@ -160,7 +160,7 @@ export default function ProfileCardClient({
           {/* NFC Indicator */}
           <div className="relative z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950/70 border border-white/15 text-[10px] text-slate-200 font-medium tracking-wide">
             <Radio size={11} className={`${theme.accent}`} />
-            <span>NFC ACTIVE</span>
+            <span>MSC ACTIVE</span>
           </div>
 
           {/* Share Button */}
