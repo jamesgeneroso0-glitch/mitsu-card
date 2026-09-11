@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { User, MessageCircle, Globe, Gamepad2, Swords, ExternalLink, ShieldCheck, Sparkles, QrCode } from 'lucide-react';
+import { User, MessageCircle, Globe, Gamepad2, Swords, ExternalLink, ShieldCheck, Sparkles } from 'lucide-react';
 
 const plainTheme = {
   bg: "from-slate-900 via-slate-900 to-slate-950",
@@ -45,9 +45,23 @@ export default function PaymentPage() {
 
   const currentTheme = (cardData?.theme && themeStyles[cardData.theme]) ? themeStyles[cardData.theme] : plainTheme;
 
+  const handleGcashRedirect = () => {
+    setSelectedMethod('gcash');
+    // Replace with your actual GCash link, QR link, or web portal
+    const gcashWebLink = "https://m.gcash.com/"; 
+    window.open(gcashWebLink, '_blank');
+  };
+
+  const handlePaypalRedirect = () => {
+    setSelectedMethod('paypal');
+    // Replace with your actual PayPal.me link (e.g. https://paypal.me/yourusername/499PHP)
+    const paypalMeLink = "https://paypal.me/"; 
+    window.open(paypalMeLink, '_blank');
+  };
+
   const handleVerifyAndPublish = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedMethod || !cardData) return;
+    if (!cardData) return;
     setIsVerifying(true);
 
     setTimeout(async () => {
@@ -79,7 +93,7 @@ export default function PaymentPage() {
         <div className="max-w-md bg-slate-900 border border-emerald-500/30 p-8 rounded-2xl shadow-2xl">
           <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">✓</div>
           <h1 className="text-2xl font-bold mb-2">Payment Verified & Published!</h1>
-          <p className="text-slate-400 text-sm mb-6">Matagumpay na nakumpirma ang iyong bayad. Live na ngayon ang iyong Mitsu Smart Card[cite: 1]!</p>
+          <p className="text-slate-400 text-sm mb-6">Your payment has been successfully confirmed. Your Mitsu Smart Card is now live[cite: 1]!</p>
           <a href={`/${cardData?.clientId || ''}`} className="inline-block w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition-all">
             View My Live Card 🚀
           </a>
@@ -90,16 +104,14 @@ export default function PaymentPage() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-white p-4 sm:p-8 flex flex-col items-center justify-center relative overflow-hidden">
-      
-      {/* Background Accent */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
       <div className="w-full max-w-4xl text-center mb-8 relative z-10">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-medium mb-2">
           <Sparkles size={14} /> Secure Checkout
         </span>
-        <h1 className="text-2xl sm:text-3xl font-bold">Ready na ang customized preview card mo sa ilang minuto na lang!</h1>
-        <p className="text-xs sm:text-sm text-slate-400 mt-1">Suriin ang iyong preview card sa ibaba at piliin ang iyong paraan ng pagbabayad upang tuluyang ma-publish ang iyong NFC card.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold">Your customized preview card will be ready in just a few minutes!</h1>
+        <p className="text-xs sm:text-sm text-slate-400 mt-1">Review your preview card below and click GCash or PayPal to proceed with direct payment[cite: 1].</p>
       </div>
 
       <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-start relative z-10">
@@ -153,67 +165,51 @@ export default function PaymentPage() {
               </div>
             </div>
           ) : (
-            <p className="text-sm text-slate-400 text-center py-10">Walang nakitang data ng card. Mangyaring mag-customize muna sa Client Portal.</p>
+            <p className="text-sm text-slate-400 text-center py-10">No card data found. Please customize your card first in the Client Portal.</p>
           )}
         </div>
 
-        {/* RIGHT COLUMN: PAYMENT OPTIONS */}
+        {/* RIGHT COLUMN: DIRECT PAYMENT BUTTONS & REDIRECT */}
         <div className="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 shadow-xl">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold">Package Total</h2>
             <span className="text-xl font-black text-indigo-400">₱499</span>
           </div>
-          <p className="text-xs text-slate-400 mb-6">Pumili ng paraan ng pagbabayad. Direktang magre-redirect sa GCash o PayPal.</p>
+          <p className="text-xs text-slate-400 mb-6">Click your preferred payment option to redirect directly to GCash or PayPal[cite: 1].</p>
 
-          {!selectedMethod ? (
-            <div className="flex flex-col gap-3">
-              <button 
-                onClick={() => setSelectedMethod('gcash')} 
-                className="w-full p-4 bg-blue-600/20 border border-blue-500/40 hover:bg-blue-600/30 rounded-xl font-semibold flex items-center justify-between transition-all cursor-pointer"
-              >
-                <span className="flex items-center gap-2">📱 Pay via GCash (₱499)</span>
-                <span className="text-xs text-blue-400">Select →</span>
-              </button>
+          <div className="flex flex-col gap-3 mb-6">
+            <button 
+              type="button"
+              onClick={handleGcashRedirect}
+              className={`w-full p-4 rounded-xl font-semibold flex items-center justify-between transition-all cursor-pointer ${
+                selectedMethod === 'gcash' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25' : 'bg-blue-600/20 border border-blue-500/40 hover:bg-blue-600/30 text-blue-300'
+              }`}
+            >
+              <span className="flex items-center gap-2">📱 Pay via GCash (₱499)</span>
+              <span className="text-xs underline">Open GCash ↗</span>
+            </button>
 
-              <button 
-                onClick={() => setSelectedMethod('paypal')} 
-                className="w-full p-4 bg-indigo-600/20 border border-indigo-500/40 hover:bg-indigo-600/30 rounded-xl font-semibold flex items-center justify-between transition-all cursor-pointer"
-              >
-                <span className="flex items-center gap-2">💳 Pay via PayPal (₱499)</span>
-                <span className="text-xs text-indigo-400">Select →</span>
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleVerifyAndPublish} className="flex flex-col gap-4">
-              <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between text-sm">
-                <span className="text-slate-400">Selected Method:</span>
-                <span className="font-bold uppercase text-indigo-400">{selectedMethod}</span>
-                <button type="button" onClick={() => setSelectedMethod(null)} className="text-xs text-slate-500 underline cursor-pointer">Change</button>
-              </div>
+            <button 
+              type="button"
+              onClick={handlePaypalRedirect}
+              className={`w-full p-4 rounded-xl font-semibold flex items-center justify-between transition-all cursor-pointer ${
+                selectedMethod === 'paypal' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25' : 'bg-indigo-600/20 border border-indigo-500/40 hover:bg-indigo-600/30 text-indigo-300'
+              }`}
+            >
+              <span className="flex items-center gap-2">💳 Pay via PayPal (₱499)</span>
+              <span className="text-xs underline">Open PayPal ↗</span>
+            </button>
+          </div>
 
-              {selectedMethod === 'gcash' && (
-                <div className="p-3 bg-blue-950/30 border border-blue-500/20 rounded-xl text-xs text-slate-300">
-                  <p className="font-semibold text-blue-400 mb-1">GCash Direct Instructions:</p>
-                  <p>1. Magpadala ng ₱499 sa GCash account: <strong>09XXXXXXXXX (Mitsu Smart Card)</strong></p>
-                  <p>2. Pagkatapos magbayad, ilagay ang iyong GCash Reference Number sa ibaba para sa verification[cite: 1].</p>
-                </div>
-              )}
-
-              {selectedMethod === 'paypal' && (
-                <div className="p-3 bg-indigo-950/30 border border-indigo-500/20 rounded-xl text-xs text-slate-300">
-                  <p className="font-semibold text-indigo-400 mb-1">PayPal Direct Instructions:</p>
-                  <p>1. Kumpletuhin ang secure payment gamit ang PayPal[cite: 1].</p>
-                  <p>2. Ilagay ang Transaction ID/Reference sa ibaba para ma-verify agad ang iyong order.</p>
-                </div>
-              )}
-
+          {selectedMethod && (
+            <form onSubmit={handleVerifyAndPublish} className="flex flex-col gap-4 border-t border-slate-800 pt-4">
               <div>
-                <label className="text-xs font-medium text-slate-300">Reference No. / Transaction ID:</label>
+                <label className="text-xs font-medium text-slate-300">Enter your GCash/PayPal Reference No. or Transaction ID:</label>
                 <input 
                   type="text" 
                   value={refNumber} 
                   onChange={(e) => setRefNumber(e.target.value)} 
-                  placeholder="Hal. 1029384756" 
+                  placeholder="e.g. 1029384756" 
                   required 
                   className="w-full px-3 py-2 mt-1 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white outline-none focus:border-indigo-500"
                 />
@@ -225,10 +221,10 @@ export default function PaymentPage() {
                 className="w-full py-3 bg-white text-black font-bold rounded-xl text-sm transition-all hover:bg-slate-200 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isVerifying ? (
-                  <>Verifying & Publishing Card...</>
+                  <>Verifying Payment & Publishing...</>
                 ) : (
                   <>
-                    <ShieldCheck size={16} /> Verify Payment & Publish Card
+                    <ShieldCheck size={16} /> Confirm Payment & Publish Card[cite: 1]
                   </>
                 )}
               </button>
