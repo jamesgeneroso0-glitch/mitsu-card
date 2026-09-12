@@ -24,6 +24,53 @@ import {
   Info
 } from 'lucide-react';
 
+// ScrollReveal Wrapper para sa magandang entry animations habang nag-aabang o nag-scroll
+function ScrollReveal({ 
+  children, 
+  className = "", 
+  delay = 0 
+}: { 
+  children: React.ReactNode; 
+  className?: string; 
+  delay?: number;
+}) {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ease-out ${
+        isVisible 
+          ? "opacity-100 translate-y-0 scale-100" 
+          : "opacity-0 translate-y-8 scale-95 pointer-events-none"
+      } ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// Plain theme fallback for unselected state
 const plainTheme = {
   bg: "from-slate-900 via-slate-900 to-slate-950",
   border: "border-slate-800 hover:border-slate-700",
@@ -34,6 +81,7 @@ const plainTheme = {
   btnBg: "bg-slate-800 hover:bg-slate-700 text-slate-300 shadow-none",
 };
 
+// List of all 20 theme styles matching the main profile pages
 const themeStyles: Record<string, {
   bg: string;
   border: string;
@@ -270,6 +318,7 @@ export default function ClientPortalPage() {
   ]);
 
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     generateNewId();
@@ -317,6 +366,7 @@ export default function ClientPortalPage() {
     if (!file) return;
 
     const labelName = type === 'banner' ? 'Banner Image' : 'Profile Picture';
+
     const reader = new FileReader();
     reader.onloadend = () => {
       if (type === 'banner') {
@@ -360,13 +410,14 @@ export default function ClientPortalPage() {
     setLinks(updatedLinks);
   };
 
-  // SAVE TO LOCALSTORAGE AND REDIRECT TO PAYMENT PAGE
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     setMessage('');
 
     if (!theme) {
       setMessage('Error: Please select a theme style for your card.');
+      setLoading(false);
       return;
     }
 
@@ -375,13 +426,13 @@ export default function ClientPortalPage() {
         const firstChar = link.name.trim()[0];
         if (firstChar !== firstChar.toUpperCase()) {
           setMessage(`Error: Platform name "${link.name}" must start with an uppercase letter (e.g. Instagram).`);
+          setLoading(false);
           return;
         }
       }
     }
 
     const clientData = {
-      clientId,
       name: name || 'Mitsu Kazuwara',
       subtitle: subtitle || 'Subtitle / Role',
       avatarUrl,
@@ -392,8 +443,34 @@ export default function ClientPortalPage() {
       links,
     };
 
-    localStorage.setItem('pending_mitsu_card', JSON.stringify(clientData));
-    window.location.href = 'https://www.mitsu.cards/payment';
+    try {
+      const response = await fetch('/api/admin/client', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientId, clientData }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        const fullPayload = { clientId, ...clientData };
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullPayload, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `${clientId}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+
+        const pinReminder = isLocked ? ` | PIN Code: ${pinCode}` : '';
+        setMessage(`Success! Your configuration file ${clientId}.json has been downloaded.\n\nPlease keep note of your Card ID: ${clientId}${pinReminder}. Send or email the downloaded .json file to complete your profile card setup!`);
+      } else {
+        setMessage(`Error: ${result.error}`);
+      }
+    } catch (err) {
+      setMessage('Connection error occurred.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const currentTheme = (theme && themeStyles[theme]) ? themeStyles[theme] : plainTheme;
@@ -404,248 +481,381 @@ export default function ClientPortalPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center py-6 px-3 sm:py-10 sm:px-4 relative overflow-x-hidden">
+        
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+
       <div className={`absolute w-[200px] sm:w-[320px] h-[200px] sm:h-[320px] ${currentTheme.glow} rounded-full blur-3xl opacity-40 pointer-events-none transition-colors duration-300 transform-gpu`} />
 
-      <div className="w-full max-w-5xl bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl flex flex-col lg:flex-row gap-8 lg:gap-10 relative z-10">
-        
-        {/* FORM SECTION */}
-        <div className="flex-1 w-full min-w-0">
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <span className="text-xs uppercase tracking-widest text-indigo-400 font-semibold flex items-center gap-1">
-                <Sparkles size={13} className="text-indigo-400" /> Client Portal
-              </span>
-              <h2 className="text-xl sm:text-2xl font-bold mt-1">Mitsu Smart Card Setup</h2>
-              <p className="text-xs sm:text-sm text-slate-400 mt-1">Customize your interactive profile card.</p>
-            </div>
-            <button 
-              type="button" 
-              onClick={handleReset} 
-              title="Reset Form"
-              className="p-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl transition-all cursor-pointer shrink-0"
-            >
-              <RotateCcw size={16} />
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            {message && (
-              <div className="p-4 rounded-xl border text-xs sm:text-sm font-medium leading-relaxed whitespace-pre-line flex items-start gap-2.5 bg-rose-950/40 text-rose-400 border-rose-500/30">
-                <AlertCircle size={18} className="shrink-0 text-rose-400 mt-0.5" />
-                <div>{message}</div>
+      <ScrollReveal delay={100} className="w-full max-w-5xl">
+        <div className="w-full bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl flex flex-col lg:flex-row gap-8 lg:gap-10 relative z-10">
+          
+          {/* FORM SECTION (Left) */}
+          <div className="flex-1 w-full min-w-0">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <span className="text-xs uppercase tracking-widest text-indigo-400 font-semibold flex items-center gap-1">
+                  <Sparkles size={13} className="text-indigo-400" /> Client Portal
+                </span>
+                <h2 className="text-xl sm:text-2xl font-bold mt-1">Mitsu Smart Card Setup</h2>
+                <p className="text-xs sm:text-sm text-slate-400 mt-1">Customize your interactive profile card.</p>
               </div>
-            )}
-              
-            <div>
-              <label className="text-xs font-medium text-slate-400">Generated Card ID / Slug (Automated):</label>
-              <div className="relative mt-1.5 flex items-center">
-                <input 
-                  type="text" 
-                  value={clientId} 
-                  disabled
-                  className="w-full pl-3 pr-24 py-2 bg-slate-950/50 border border-slate-800 rounded-lg text-slate-400 font-mono text-sm cursor-not-allowed tracking-wider"
-                />
-                <button
-                  type="button"
-                  onClick={handleCopyId}
-                  className="absolute right-1.5 px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 rounded-md transition-all flex items-center gap-1.5 border border-slate-700 cursor-pointer"
-                >
-                  {copied ? (
-                    <>
-                      <Check size={12} className="text-emerald-400" />
-                      <span className="text-emerald-400 font-medium">Copied!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy size={12} />
-                      <span>Copy</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-slate-300">Full Name:</label>
-              <input 
-                type="text" 
-                value={name} 
-                onChange={(e) => setName(e.target.value)} 
-                placeholder="e.g. Mitsu Kazuwara"
-                required
-                className="w-full px-3 py-2 mt-1.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg text-white text-sm outline-none transition-all"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-slate-300">Subtitle / Role:</label>
-              <input 
-                type="text" 
-                value={subtitle} 
-                onChange={(e) => setSubtitle(e.target.value)} 
-                placeholder="e.g. Me / Student / Developer"
-                className="w-full px-3 py-2 mt-1.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg text-white text-sm outline-none transition-all"
-              />
-            </div>
-
-            <div className="bg-slate-950/70 p-4 rounded-xl border border-slate-800/80 flex flex-col gap-4">
-              <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
-                <div className="flex items-center gap-2">
-                  <ImageIcon size={16} className="text-indigo-400" />
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-200">Direct File Import</h3>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-slate-200">Profile Picture File:</label>
-                <div className="relative">
-                  <input ref={avatarInputRef} type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'avatar')} className="hidden" id="avatar-upload" />
-                  <label htmlFor="avatar-upload" className="flex items-center justify-between w-full px-3 py-2.5 bg-slate-950 border border-slate-800 hover:border-indigo-500/60 rounded-lg text-slate-300 text-sm cursor-pointer">
-                    <span className="truncate text-xs text-slate-400">{avatarFileName ? `🖼️ ${avatarFileName}` : 'Select Profile Picture File...'}</span>
-                    <span className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded-md shrink-0 font-medium"><Upload size={13} /> Import</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-slate-200">Banner Image File:</label>
-                <div className="relative">
-                  <input ref={bannerInputRef} type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'banner')} className="hidden" id="banner-upload" />
-                  <label htmlFor="banner-upload" className="flex items-center justify-between w-full px-3 py-2.5 bg-slate-950 border border-slate-800 hover:border-indigo-500/60 rounded-lg text-slate-300 text-sm cursor-pointer">
-                    <span className="truncate text-xs text-slate-400">{bannerFileName ? `🖼️ ${bannerFileName}` : 'Select Banner Image File...'}</span>
-                    <span className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded-md shrink-0 font-medium"><Upload size={13} /> Import</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-slate-300">Theme Style:</label>
-              <select 
-                value={theme} 
-                onChange={(e) => setTheme(e.target.value)}
-                required
-                className="w-full px-3 py-2 mt-1.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg text-white text-sm outline-none transition-all cursor-pointer capitalize"
-              >
-                <option value="" disabled className="bg-slate-900 text-slate-500">Select a Theme</option>
-                {Object.keys(themeStyles).map((t) => (
-                  <option key={t} value={t} className="bg-slate-900 text-white capitalize">{t.charAt(0).toUpperCase() + t.slice(1)}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
-              <div className="flex items-center gap-3">
-                <input type="checkbox" checked={isLocked} onChange={(e) => setIsLocked(e.target.checked)} id="lockCheck" className="w-4 h-4 accent-indigo-500 rounded cursor-pointer shrink-0" />
-                <label htmlFor="lockCheck" className="cursor-pointer text-sm font-medium text-slate-200">Lock Card with PIN (Privacy Mode)</label>
-              </div>
-              {isLocked && (
-                <div className="mt-3 sm:pl-7">
-                  <label className="text-xs text-slate-300">Enter PIN Code:</label>
-                  <input type="password" value={pinCode} onChange={(e) => setPinCode(e.target.value)} placeholder="e.g. 1234" required className="w-full px-3 py-2 mt-1 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg text-white text-sm outline-none" />
-                </div>
-              )}
-            </div>
-
-            <hr className="border-slate-800 my-1" />
-              
-            <div className="flex justify-between items-center">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">Social & Link Items</h3>
-              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${links.length >= 3 ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-slate-800 text-slate-400'}`}>
-                {links.length}/3 used
-              </span>
-            </div>
-
-            {links.map((link, index) => (
-              <div key={index} className="bg-slate-950/60 p-4 rounded-xl flex flex-col gap-3 border border-slate-800/80">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-bold text-indigo-400">Link #{index + 1}</span>
-                  {links.length > 1 && (
-                    <button type="button" onClick={() => handleRemoveLink(index)} className="text-rose-400 hover:text-rose-300 transition-colors text-xs font-medium cursor-pointer">Remove</button>
-                  )}
-                </div>
-                <input type="text" placeholder="Platform Name (e.g. Instagram)" value={link.name} onChange={(e) => handleLinkChange(index, 'name', e.target.value)} required className="w-full px-3 py-2 bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-lg text-white text-sm outline-none" />
-                <input type="text" placeholder="Username / Subtitle (e.g. @mitsu.kzwr)" value={link.detail} onChange={(e) => handleLinkChange(index, 'detail', e.target.value)} required className="w-full px-3 py-2 bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-lg text-white text-sm outline-none" />
-                <input type="url" placeholder="URL Link (e.g. https://instagram.com/...)" value={link.url} onChange={(e) => handleLinkChange(index, 'url', e.target.value)} required className="w-full px-3 py-2 bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-lg text-white text-sm outline-none" />
-              </div>
-            ))}
-
-            {links.length < 3 ? (
-              <button type="button" onClick={handleAddLink} className="py-2.5 bg-slate-950 hover:bg-slate-800 text-slate-300 border border-dashed border-slate-700 rounded-xl text-sm font-medium cursor-pointer">+ Add New Link</button>
-            ) : (
-              <p className="text-xs text-rose-400 text-center">Maximum limit of 3 links reached.</p>
-            )}
-
-            <div className="mt-3">
               <button 
-                type="submit" 
-                className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/25 transition-all cursor-pointer text-sm"
+                type="button" 
+                onClick={handleReset} 
+                title="Reset Form"
+                className="p-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl transition-all cursor-pointer shrink-0"
               >
-                Proceed to Payment 🚀
+                <RotateCcw size={16} />
               </button>
             </div>
-          </form>
-        </div>
 
-        {/* LIVE PREVIEW SECTION */}
-        <div className="flex-1 w-full min-w-0 flex flex-col items-center justify-start lg:justify-center bg-slate-950/60 p-4 sm:p-5 rounded-2xl border border-slate-800/80">
-          <div className="w-full text-center lg:text-left text-xs uppercase tracking-widest text-indigo-400 font-bold mb-3 flex items-center justify-center lg:justify-start gap-1.5">
-            <Sparkles size={14} /> Live Digital Card Preview
-          </div>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               
-          <div className={`w-full max-w-[320px] bg-gradient-to-b ${currentTheme.bg} border-2 ${currentTheme.border} rounded-3xl text-center shadow-2xl relative overflow-hidden backdrop-blur-md transition-all duration-300 my-auto`}>
-            <div className="w-full h-28 relative overflow-hidden bg-slate-950 border-b border-white/10 flex items-start justify-between p-3">
-              {bannerUrl ? (
-                <img src={bannerUrl} alt="Banner Preview" className="absolute inset-0 w-full h-full object-cover" />
-              ) : (
-                <div className={`absolute inset-0 bg-gradient-to-br ${currentTheme.avatarGlow} opacity-40`} />
+              {message && (
+                <div className={`p-4 rounded-xl border text-xs sm:text-sm font-medium leading-relaxed whitespace-pre-line flex items-start gap-2.5 ${
+                  message.startsWith('Success!') 
+                    ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/30' 
+                    : 'bg-rose-950/40 text-rose-400 border-rose-500/30'
+                }`}>
+                  {message.startsWith('Invalid Request') || message.startsWith('Error:') ? (
+                    <AlertCircle size={18} className="shrink-0 text-rose-400 mt-0.5" />
+                  ) : null}
+                  <div>{message}</div>
+                </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-transparent to-slate-950/90 pointer-events-none" />
-              <div className={`relative z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium backdrop-blur-md shadow-md ${isLocked ? 'bg-amber-500/30 text-amber-300 border border-amber-500/50' : 'bg-emerald-500/30 text-emerald-300 border border-emerald-500/50'}`}>
-                <span>{isLocked ? '🔒' : '🔓'}</span> {isLocked ? 'Locked' : 'Unlocked'}
-              </div>
-            </div>
-
-            <div className="p-4 sm:p-5 pt-0 relative">
-              <div className={`relative -mt-[44px] w-22 h-22 rounded-full bg-gradient-to-tr ${currentTheme.avatarGlow} mx-auto mb-2 flex items-center justify-center text-2xl font-bold text-white shadow-2xl ring-4 ring-slate-900 overflow-hidden z-10`}>
-                {avatarUrl ? <img src={avatarUrl} alt="Avatar Preview" className="w-full h-full object-cover" /> : <span>{initials}</span>}
-              </div>
-
-              <h1 className="text-lg font-bold text-white tracking-tight break-words">{name || 'Mitsu Kazuwara'}</h1>
-              <p className={`text-xs font-semibold ${currentTheme.accent} mt-0.5 break-words`}>{subtitle || 'Subtitle / Role'}</p>
-
-              <div className="mt-4">
-                <div className={`w-full py-2.5 rounded-xl text-xs font-bold ${currentTheme.btnBg} shadow-lg flex items-center justify-center gap-2 cursor-default`}>
-                  <span>👤+</span> Save Contact
+                
+              <div>
+                <label className="text-xs font-medium text-slate-400">Generated Card ID / Slug (Automated):</label>
+                <div className="relative mt-1.5 flex items-center">
+                  <input 
+                    type="text" 
+                    value={clientId} 
+                    disabled
+                    className="w-full pl-3 pr-24 py-2 bg-slate-950/50 border border-slate-800 rounded-lg text-slate-400 font-mono text-sm cursor-not-allowed tracking-wider"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCopyId}
+                    className="absolute right-1.5 px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 rounded-md transition-all flex items-center gap-1.5 border border-slate-700 cursor-pointer"
+                  >
+                    {copied ? (
+                      <>
+                        <Check size={12} className="text-emerald-400" />
+                        <span className="text-emerald-400 font-medium">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={12} />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
 
-              <div className="mt-4 flex flex-col gap-2 text-left">
-                {links.map((l, i) => (
-                  <div key={i} className="w-full p-2.5 rounded-xl bg-slate-900/80 border border-slate-800/90 text-xs text-white flex items-center justify-between shadow-md">
-                    <div className="flex items-center gap-2.5 truncate min-w-0">
-                      <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700/80 flex items-center justify-center text-xs shrink-0 text-slate-200">
-                        {getIcon(l.name)}
-                      </div>
-                      <div className="truncate min-w-0">
-                        <div className="font-semibold text-white truncate">{l.name || `Link Item #${i + 1}`}</div>
-                        <div className="text-[11px] text-slate-400 truncate">{l.detail || '@username'}</div>
-                      </div>
-                    </div>
-                    <span className={`text-[11px] ${currentTheme.accent} font-medium shrink-0 ml-2`}>Visit ↗</span>
-                  </div>
-                ))}
+              <div>
+                <label className="text-sm font-medium text-slate-300">Full Name:</label>
+                <input 
+                  type="text" 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)} 
+                  placeholder="e.g. Mitsu Kazuwara"
+                  required
+                  className="w-full px-3 py-2 mt-1.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg text-white text-sm outline-none transition-all"
+                />
               </div>
 
-              <div className="mt-5 pt-3 border-t border-slate-800/80 text-[10px] tracking-widest uppercase text-slate-400 font-bold flex items-center justify-center gap-1.5">
-                <span>Powered by MSC</span>
+              <div>
+                <label className="text-sm font-medium text-slate-300">Subtitle / Role:</label>
+                <input 
+                  type="text" 
+                  value={subtitle} 
+                  onChange={(e) => setSubtitle(e.target.value)} 
+                  placeholder="e.g. Me / Student / Developer"
+                  className="w-full px-3 py-2 mt-1.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg text-white text-sm outline-none transition-all"
+                />
               </div>
+
+              {/* DIRECT FILE IMPORT CONTAINER */}
+              <div className="bg-slate-950/70 p-4 rounded-xl border border-slate-800/80 flex flex-col gap-4">
+                <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <ImageIcon size={16} className="text-indigo-400" />
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-200">Direct File Import</h3>
+                  </div>
+                  <span className="text-[11px] text-indigo-400 font-medium flex items-center gap-1 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
+                    <Sparkles size={11} /> Auto-Fit System
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex justify-between items-center">
+                    <label className="text-sm font-medium text-slate-200">Profile Picture File:</label>
+                    <span className="text-[10px] bg-indigo-500/15 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/30 font-mono font-medium">
+                      1:1 Square
+                    </span>
+                  </div>
+                  
+                  <div className="relative">
+                    <input 
+                      ref={avatarInputRef}
+                      type="file" 
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(e, 'avatar')}
+                      className="hidden"
+                      id="avatar-upload"
+                    />
+                    <label 
+                      htmlFor="avatar-upload"
+                      className="flex items-center justify-between w-full px-3 py-2.5 bg-slate-950 border border-slate-800 hover:border-indigo-500/60 rounded-lg text-slate-300 text-sm cursor-pointer transition-all active:scale-[0.99]"
+                    >
+                      <span className="truncate text-xs text-slate-400">
+                        {avatarFileName ? `🖼️ ${avatarFileName}` : 'Select Profile Picture File...'}
+                      </span>
+                      <span className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded-md shrink-0 font-medium shadow-sm transition-all">
+                        <Upload size={13} /> Import
+                      </span>
+                    </label>
+                  </div>
+                  
+                  <p className="text-[11px] text-slate-400 leading-relaxed mt-0.5">
+                    <span className="text-indigo-400 font-medium">Size: 400 x 400 px (1:1 Ratio).</span>{' '}
+                    <span className="text-slate-400 italic">Optional but highly recommended</span>
+                  </p>
+                </div>
+
+                <hr className="border-slate-800/60 my-0.5" />
+
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex justify-between items-center">
+                    <label className="text-sm font-medium text-slate-200">Banner Image File:</label>
+                    <span className="text-[10px] bg-indigo-500/15 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/30 font-mono font-medium">
+                      16:9 Banner
+                    </span>
+                  </div>
+
+                  <div className="relative">
+                    <input 
+                      ref={bannerInputRef}
+                      type="file" 
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(e, 'banner')}
+                      className="hidden"
+                      id="banner-upload"
+                    />
+                    <label 
+                      htmlFor="banner-upload"
+                      className="flex items-center justify-between w-full px-3 py-2.5 bg-slate-950 border border-slate-800 hover:border-indigo-500/60 rounded-lg text-slate-300 text-sm cursor-pointer transition-all active:scale-[0.99]"
+                    >
+                      <span className="truncate text-xs text-slate-400">
+                        {bannerFileName ? `🖼️ ${bannerFileName}` : 'Select Banner Image File...'}
+                      </span>
+                      <span className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded-md shrink-0 font-medium shadow-sm transition-all">
+                        <Upload size={13} /> Import
+                      </span>
+                    </label>
+                  </div>
+
+                  <p className="text-[11px] text-slate-400 leading-relaxed mt-0.5">
+                    <span className="text-indigo-400 font-medium">Size: 1200 x 350 px (16:9 / Banner Ratio).</span>{' '}
+                    <span className="text-slate-400 italic">Optional but highly recommended</span>
+                  </p>
+                </div>
+
+                <div className="mt-1 p-2.5 rounded-lg bg-indigo-950/30 border border-indigo-500/20 flex items-start gap-2">
+                  <Info size={14} className="text-indigo-400 shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-indigo-200/90 leading-tight">
+                    Any photo dimensions can be uploaded! The system will automatically adapt your images.
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-slate-300">Theme Style:</label>
+                <select 
+                  value={theme} 
+                  onChange={(e) => setTheme(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 mt-1.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg text-white text-sm outline-none transition-all cursor-pointer capitalize"
+                >
+                  <option value="" disabled className="bg-slate-900 text-slate-500">
+                    Select a Theme
+                  </option>
+                  {Object.keys(themeStyles).map((t) => (
+                    <option key={t} value={t} className="bg-slate-900 text-white capitalize">
+                      {t.charAt(0).toUpperCase() + t.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
+                <div className="flex items-center gap-3">
+                  <input 
+                    type="checkbox" 
+                    checked={isLocked} 
+                    onChange={(e) => setIsLocked(e.target.checked)} 
+                    id="lockCheck"
+                    className="w-4 h-4 accent-indigo-500 rounded cursor-pointer shrink-0"
+                  />
+                  <label htmlFor="lockCheck" className="cursor-pointer text-sm font-medium text-slate-200">Lock Card with PIN (Privacy Mode)</label>
+                </div>
+                <p className="text-xs text-slate-400 mt-1 sm:pl-7">Enable this option if you want to restrict profile access using a secure PIN code.</p>
+
+                {isLocked && (
+                  <div className="mt-3 sm:pl-7">
+                    <label className="text-xs text-slate-300">Enter PIN Code:</label>
+                    <input 
+                      type="password" 
+                      value={pinCode} 
+                      onChange={(e) => setPinCode(e.target.value)} 
+                      placeholder="e.g. 1234"
+                      required
+                      className="w-full px-3 py-2 mt-1 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg text-white text-sm outline-none transition-all"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <hr className="border-slate-800 my-1" />
+                
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">Social & Link Items</h3>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${links.length >= 3 ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-slate-800 text-slate-400'}`}>
+                  {links.length}/3 used
+                </span>
+              </div>
+
+              {links.map((link, index) => (
+                <div key={index} className="bg-slate-950/60 p-4 rounded-xl flex flex-col gap-3 border border-slate-800/80 transition-all">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-indigo-400">Link #{index + 1}</span>
+                    {links.length > 1 && (
+                      <button type="button" onClick={() => handleRemoveLink(index)} className="text-rose-400 hover:text-rose-300 transition-colors text-xs font-medium cursor-pointer">
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <input 
+                    type="text" 
+                    placeholder="Platform Name (e.g. Instagram)" 
+                    value={link.name} 
+                    onChange={(e) => handleLinkChange(index, 'name', e.target.value)}
+                    required
+                    className="w-full px-3 py-2 bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-lg text-white text-sm outline-none"
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Username / Subtitle (e.g. @mitsu.kzwr)" 
+                    value={link.detail} 
+                    onChange={(e) => handleLinkChange(index, 'detail', e.target.value)}
+                    required
+                    className="w-full px-3 py-2 bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-lg text-white text-sm outline-none"
+                  />
+                  <input 
+                    type="url" 
+                    placeholder="URL Link (e.g. https://instagram.com/...)" 
+                    value={link.url} 
+                    onChange={(e) => handleLinkChange(index, 'url', e.target.value)}
+                    required
+                    className="w-full px-3 py-2 bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-lg text-white text-sm outline-none"
+                  />
+                </div>
+              ))}
+
+              {links.length < 3 ? (
+                <button type="button" onClick={handleAddLink} className="py-2.5 bg-slate-950 hover:bg-slate-800 text-slate-300 hover:text-white border border-dashed border-slate-700 rounded-xl text-sm font-medium transition-all cursor-pointer">
+                  + Add New Link
+                </button>
+              ) : (
+                <p className="text-xs text-rose-400 text-center">Maximum limit of 3 links reached.</p>
+              )}
+
+              <div className="mt-3">
+                <button 
+                  type="submit" 
+                  disabled={loading} 
+                  className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/25 transition-all cursor-pointer disabled:opacity-50 text-sm active:scale-[0.99]"
+                >
+                  {loading ? 'Saving Card...' : 'Save & Publish'}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* LIVE PREVIEW SECTION (Right) */}
+          <div className="flex-1 w-full min-w-0 flex flex-col items-center justify-start lg:justify-center bg-slate-950/60 p-4 sm:p-5 rounded-2xl border border-slate-800/80">
+            
+            <div className="w-full text-center lg:text-left text-xs uppercase tracking-widest text-indigo-400 font-bold mb-3 flex items-center justify-center lg:justify-start gap-1.5">
+              <Sparkles size={14} /> Live Digital Card Preview
+            </div>
+                
+            <div className={`w-full max-w-[320px] bg-gradient-to-b ${currentTheme.bg} border-2 ${currentTheme.border} rounded-3xl text-center shadow-2xl relative overflow-hidden backdrop-blur-md transition-all duration-300 my-auto transform-gpu`}>
+              
+              <div className="w-full h-28 relative overflow-hidden bg-slate-950 border-b border-white/10 flex items-start justify-between p-3">
+                {bannerUrl ? (
+                  <img src={bannerUrl} alt="Banner Preview" className="absolute inset-0 w-full h-full object-cover" />
+                ) : (
+                  <div className={`absolute inset-0 bg-gradient-to-br ${currentTheme.avatarGlow} opacity-40`} />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-transparent to-slate-950/90 pointer-events-none" />
+
+                <div className={`relative z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium backdrop-blur-md shadow-md ${isLocked ? 'bg-amber-500/30 text-amber-300 border border-amber-500/50' : 'bg-emerald-500/30 text-emerald-300 border border-emerald-500/50'}`}>
+                  <span>{isLocked ? '🔒' : '🔓'}</span> {isLocked ? 'Locked' : 'Unlocked'}
+                </div>
+                <div className="relative z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium bg-slate-900/90 text-slate-100 border border-slate-700/80 backdrop-blur-md shadow-md">
+                  <span>🔗</span> Share
+                </div>
+              </div>
+
+              <div className="p-4 sm:p-5 pt-0 relative">
+                <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 ${currentTheme.glow} rounded-full blur-2xl opacity-40 pointer-events-none transform-gpu`} />
+
+                <div className={`relative -mt-[44px] w-22 h-22 rounded-full bg-gradient-to-tr ${currentTheme.avatarGlow} mx-auto mb-2 flex items-center justify-center text-2xl font-bold text-white shadow-2xl ring-4 ring-slate-900 overflow-hidden z-10`}>
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="Avatar Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="drop-shadow-md">{initials}</span>
+                  )}
+                </div>
+
+                <h1 className="text-lg font-bold text-white tracking-tight break-words drop-shadow-sm">{name || 'Mitsu Kazuwara'}</h1>
+                <p className={`text-xs font-semibold ${currentTheme.accent} mt-0.5 break-words drop-shadow-sm`}>{subtitle || 'Mitsu Kazuwara'}</p>
+
+                <div className="mt-4">
+                  <div className={`w-full py-2.5 rounded-xl text-xs font-bold ${currentTheme.btnBg} shadow-lg flex items-center justify-center gap-2 transition-all cursor-default`}>
+                    <span>👤+</span> Save Contact
+                  </div>
+                </div>
+
+                <div className="mt-4 flex flex-col gap-2 text-left">
+                  {links.map((l, i) => (
+                    <div key={i} className="w-full p-2.5 rounded-xl bg-slate-900/80 border border-slate-800/90 text-xs text-white flex items-center justify-between shadow-md transition-all hover:border-slate-700">
+                      <div className="flex items-center gap-2.5 truncate min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700/80 flex items-center justify-center text-xs shrink-0 text-slate-200 shadow-inner">
+                          {getIcon(l.name)}
+                        </div>
+                        <div className="truncate min-w-0">
+                          <div className="font-semibold text-white truncate">{l.name || `Link Item #${i + 1}`}</div>
+                          <div className="text-[11px] text-slate-400 truncate">{l.detail || '@username'}</div>
+                        </div>
+                      </div>
+                      <span className={`text-[11px] ${currentTheme.accent} font-medium shrink-0 ml-2`}>Visit ↗</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-5 pt-3 border-t border-slate-800/80 text-[10px] tracking-widest uppercase text-slate-400 font-bold flex items-center justify-center gap-1.5">
+                  <img src="/icon.png" alt="Mitsu Icon" className="w-3.5 h-3.5 object-contain shrink-0" />
+                  <span>Powered by MSC</span>
+                </div>
+              </div>
+
             </div>
           </div>
-        </div>
 
-      </div>
+        </div>
+      </ScrollReveal>
     </div>
   );
 }

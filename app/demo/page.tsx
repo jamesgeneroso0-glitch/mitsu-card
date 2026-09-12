@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, Gamepad2, Briefcase, Clapperboard, User, 
@@ -10,6 +10,52 @@ import {
 
 type CategoryType = 'socials' | 'gaming' | 'business' | 'entertainment';
 
+// ScrollReveal Wrapper para sa parehong main page scroll animation
+function ScrollReveal({ 
+  children, 
+  className = "", 
+  delay = 0 
+}: { 
+  children: React.ReactNode; 
+  className?: string; 
+  delay?: number;
+}) {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ease-out ${
+        isVisible 
+          ? "opacity-100 translate-y-0 scale-100" 
+          : "opacity-0 translate-y-8 scale-95 pointer-events-none"
+      } ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function Home() {
   const [isReady, setIsReady] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryType>('socials');
@@ -17,7 +63,7 @@ export default function Home() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsReady(true);
-    }, 2000);
+    }, 1200);
     return () => clearTimeout(timer);
   }, []);
 
@@ -104,66 +150,59 @@ export default function Home() {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[30rem] h-[30rem] bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.2)_0%,transparent_70%)] pointer-events-none transform-gpu" />
 
+      {/* Header section with ScrollReveal */}
       <div className="text-center max-w-xl mb-6 z-10 flex flex-col items-center">
-        <motion.div
-          key={activeCategory + '-badge'}
-          initial={{ opacity: 0, y: -5 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-sm mb-3 shadow-inner ${current.theme.badgeBg}`}
-        >
-          <Sparkles size={16} className="animate-pulse" /> {current.badgeText}
-        </motion.div>
+        <ScrollReveal delay={100}>
+          <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-sm mb-3 shadow-inner ${current.theme.badgeBg}`}>
+            <Sparkles size={16} className="animate-pulse" /> {current.badgeText}
+          </div>
+        </ScrollReveal>
 
-        <motion.h1 
-          key={activeCategory + '-title'}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2 text-slate-100"
-        >
-          {current.title}
-        </motion.h1>
+        <ScrollReveal delay={250}>
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2 text-slate-100">
+            {current.title}
+          </h1>
+        </ScrollReveal>
 
-        <motion.p 
-          key={activeCategory + '-desc'}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4 }}
-          className="text-slate-400 text-xs md:text-sm max-w-md"
-        >
-          {current.description}
-        </motion.p>
+        <ScrollReveal delay={400}>
+          <p className="text-slate-400 text-xs md:text-sm max-w-md">
+            {current.description}
+          </p>
+        </ScrollReveal>
       </div>
 
-      <div className="z-20 mb-8 flex flex-wrap justify-center gap-2 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shadow-xl backdrop-blur-md">
-        <button
-          onClick={() => setActiveCategory('socials')}
-          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${activeCategory === 'socials' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-        >
-          <User size={14} /> Socials
-        </button>
-        <button
-          onClick={() => setActiveCategory('gaming')}
-          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${activeCategory === 'gaming' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-        >
-          <Gamepad2 size={14} /> Gaming
-        </button>
-        <button
-          onClick={() => setActiveCategory('business')}
-          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${activeCategory === 'business' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-        >
-          <Briefcase size={14} /> Business
-        </button>
-        <button
-          onClick={() => setActiveCategory('entertainment')}
-          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${activeCategory === 'entertainment' ? 'bg-rose-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-        >
-          <Clapperboard size={14} /> Creator
-        </button>
-      </div>
+      {/* Category selector with ScrollReveal */}
+      <ScrollReveal delay={550} className="z-20 mb-8">
+        <div className="flex flex-wrap justify-center gap-2 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shadow-xl backdrop-blur-md">
+          <button
+            onClick={() => setActiveCategory('socials')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${activeCategory === 'socials' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+          >
+            <User size={14} /> Socials
+          </button>
+          <button
+            onClick={() => setActiveCategory('gaming')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${activeCategory === 'gaming' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+          >
+            <Gamepad2 size={14} /> Gaming
+          </button>
+          <button
+            onClick={() => setActiveCategory('business')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${activeCategory === 'business' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+          >
+            <Briefcase size={14} /> Business
+          </button>
+          <button
+            onClick={() => setActiveCategory('entertainment')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${activeCategory === 'entertainment' ? 'bg-rose-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+          >
+            <Clapperboard size={14} /> Creator
+          </button>
+        </div>
+      </ScrollReveal>
 
-      <div className="z-10 flex flex-col items-center w-full max-w-sm">
+      {/* Main card box with ScrollReveal */}
+      <ScrollReveal delay={700} className="z-10 flex flex-col items-center w-full max-w-sm">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeCategory}
@@ -173,7 +212,7 @@ export default function Home() {
             transition={{ duration: 0.25 }}
             className={`w-full bg-slate-900 border ${current.theme.border} rounded-3xl overflow-hidden shadow-2xl flex flex-col items-center text-center relative z-10 transform-gpu`}
           >
-            {/* Banner Section with demobanner.png and perfectly balanced avatar container */}
+            {/* Banner Section */}
             <div 
               className="w-full h-28 relative flex items-start justify-between p-4 border-b border-white/10 shadow-inner bg-cover bg-center"
               style={{ backgroundImage: `url('/demobanner.png')` }}
@@ -189,7 +228,6 @@ export default function Home() {
                 <span>Verified</span>
               </div>
 
-              {/* Profile Avatar using demoprofile.png positioned neatly overlapping the banner edge */}
               <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 z-20">
                 <div className="relative w-20 h-20 rounded-full bg-slate-950 border-2 border-slate-800 p-1 flex items-center justify-center shadow-xl overflow-hidden">
                   <img 
@@ -201,7 +239,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Content area with top spacing adjusted to accommodate the overlapping avatar */}
+            {/* Content area */}
             <div className="w-full px-5 sm:px-6 pt-12 pb-6 flex flex-col items-center">
               
               <div className="flex items-center gap-1.5 justify-center">
@@ -252,7 +290,6 @@ export default function Home() {
                 })}
               </div>
 
-              {/* Footer matching requirements */}
               <div className="mt-5 pt-3 border-t border-slate-800/60 w-full text-center flex items-center justify-center gap-1.5 text-[10px] text-slate-400 font-bold tracking-wider uppercase">
                 <img src="/icon.png" alt="Mitsu Icon" className="w-3.5 h-3.5 object-contain shrink-0" />
                 <span>Powered by MSC</span>
@@ -261,20 +298,20 @@ export default function Home() {
             </div>
           </motion.div>
         </AnimatePresence>
-      </div>
+      </ScrollReveal>
 
       {/* Footer */}
       <footer className="w-full max-w-5xl border-t border-slate-800/60 pt-6 mt-12 text-center relative z-10">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-slate-500">
-              © {new Date().getFullYear()} Mitsu Smart Card. All rights reserved.
-            </p>
-            <div className="flex gap-4 text-xs text-slate-400">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-slate-500">
+            © {new Date().getFullYear()} Mitsu Smart Card. All rights reserved.
+          </p>
+          <div className="flex gap-4 text-xs text-slate-400">
             <a href="https://www.mitsu.cards/privacy" className="hover:text-white transition">Privacy Policy</a>
             <a href="https://www.mitsu.cards/terms" className="hover:text-white transition">Terms and Conditions</a>
             <a href="https://www.mitsu.cards/support" className="hover:text-white transition">Contact Support</a>
-            </div>
           </div>
+        </div>
       </footer>
 
     </main>

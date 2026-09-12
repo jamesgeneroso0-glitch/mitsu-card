@@ -7,7 +7,7 @@ import {
   MessageCircle, Gamepad2, Music, User, Globe, ExternalLink,
   Briefcase, HardDrive, Palette, Video, AtSign, X, Swords, UserPlus,
   ArrowUpRight, Lock, Unlock, Share2, Check, ShieldAlert, Download,
-  Radio, CheckCircle2, Sparkles
+  Sparkles, CheckCircle2
 } from 'lucide-react';
 
 interface LinkItem {
@@ -29,6 +29,7 @@ interface ClientData {
 }
 
 const getIcon = (type: string) => {
+  if (!type) return <ExternalLink size={18} className="text-slate-400" />;
   switch (type.toLowerCase()) {
     case 'instagram': return <User size={18} className="text-pink-400" />;
     case 'facebook': return <MessageCircle size={18} className="text-blue-400" />;
@@ -135,185 +136,159 @@ export default function ProfileCardClient({
   const isContentVisible = !isCardLocked || isUnlockedByPin;
 
   return (
-    <div className="relative w-full max-w-sm flex justify-center items-center my-auto transform-gpu">
+    <div className="relative w-full max-w-[320px] flex justify-center items-center my-auto transform-gpu">
       <motion.div 
         variants={cardContainerVariants}
         initial="hidden"
         animate="visible"
-        className={`w-full bg-slate-900 border ${theme.border} rounded-3xl overflow-hidden shadow-xl flex flex-col items-center text-center relative z-10 transform-gpu`}
+        className={`w-full bg-gradient-to-b ${theme.bg || 'from-slate-950 via-slate-900 to-slate-950'} border-2 ${theme.border} rounded-3xl overflow-hidden shadow-2xl flex flex-col text-center relative z-10 backdrop-blur-md transform-gpu`}
       >
-        {/* Top Decorative / Custom Banner */}
-        <div className={`w-full h-28 relative overflow-hidden flex items-start justify-between p-4 border-b border-white/10 shadow-inner`}>
+        {/* Top Banner Container (Eksaktong gayak sa Preview) */}
+        <div className="w-full h-28 relative overflow-hidden bg-slate-950 border-b border-white/10 flex items-start justify-between p-3 shrink-0">
           {client.bannerUrl ? (
             <img 
               src={client.bannerUrl} 
-              alt="Banner" 
+              alt="Banner Preview" 
               className="absolute inset-0 w-full h-full object-cover"
             />
           ) : (
-            <div className={`absolute inset-0 bg-gradient-to-r ${theme.avatarGlow}`} />
+            <div className={`absolute inset-0 bg-gradient-to-br ${theme.avatarGlow} opacity-40`} />
           )}
+          
+          {/* Vibrant Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-transparent to-slate-950/90 pointer-events-none" />
 
-          {/* Light Reflection Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-slate-950/40 pointer-events-none" />
-
-          {/* NFC Indicator */}
-          <div className="relative z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950/70 border border-white/15 text-[10px] text-slate-200 font-medium tracking-wide">
-            <Radio size={11} className={`${theme.accent}`} />
-            <span>MSC ACTIVE</span>
+          {/* Locked / Unlocked Status Badge */}
+          <div className={`relative z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium backdrop-blur-md shadow-md ${
+            isCardLocked && !isUnlockedByPin 
+              ? 'bg-amber-500/30 text-amber-300 border border-amber-500/50' 
+              : 'bg-emerald-500/30 text-emerald-300 border border-emerald-500/50'
+          }`}>
+            <span>{isCardLocked && !isUnlockedByPin ? '🔒' : '🔓'}</span> 
+            <span>{isCardLocked && !isUnlockedByPin ? 'Locked' : 'Unlocked'}</span>
           </div>
 
           {/* Share Button */}
           <button 
             onClick={handleShare}
-            className="relative z-10 p-2 px-3 rounded-full bg-slate-950/70 hover:bg-slate-950 border border-white/15 text-slate-100 transition-colors flex items-center gap-1.5 text-xs font-semibold cursor-pointer active:scale-95 transform-gpu"
+            className="relative z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium bg-slate-900/90 text-slate-100 border border-slate-700/80 backdrop-blur-md shadow-md cursor-pointer hover:bg-slate-800 transition-all"
           >
-            {copied ? <Check size={13} className="text-emerald-400" /> : <Share2 size={13} />}
-            <span className="text-[10px] tracking-wider uppercase">{copied ? 'Copied' : 'Share'}</span>
+            <span>🔗</span> 
+            <span>{copied ? 'Copied' : 'Share'}</span>
           </button>
         </div>
 
-        {/* Avatar Display */}
-        <div className="relative -mt-12 mb-3 z-10">
-          <div className="relative w-20 h-20 rounded-full bg-slate-950 border-2 border-slate-800 p-1 flex items-center justify-center shadow-md">
+        {/* Body Container */}
+        <div className="p-4 sm:p-5 pt-0 relative flex-1 flex flex-col">
+          
+          {/* Profile Avatar: Centered directly on the bottom edge of the banner */}
+          <div className={`relative -mt-[44px] w-22 h-22 rounded-full bg-gradient-to-tr ${theme.avatarGlow} mx-auto mb-2 flex items-center justify-center text-2xl font-bold text-white shadow-2xl ring-4 ring-slate-900 overflow-hidden z-10 shrink-0`}>
             {client.image ? (
               <img 
                 src={client.image} 
-                alt={client.name} 
-                className="w-full h-full object-cover rounded-full"
+                alt="Avatar Preview" 
+                className="w-full h-full object-cover"
                 loading="eager"
               />
             ) : (
-              <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-xl font-bold">
-                <span className={theme.accent}>{initials}</span>
-              </div>
+              <span className="drop-shadow-md">{initials}</span>
             )}
-            
-            <div className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-950 rounded-full" />
           </div>
-        </div>
 
-        {/* Body Container */}
-        <div className="w-full px-5 sm:px-6 pb-6 flex flex-col items-center">
-          
-          <div className="flex items-center gap-1.5 justify-center">
-            <h1 className="text-xl font-bold text-slate-100 tracking-tight">
-              {client.name}
-            </h1>
-            <CheckCircle2 size={16} className={`${theme.accent} shrink-0`} />
-          </div>
-          
-          <p className={`text-xs font-semibold ${theme.accent} mt-0.5 mb-3 tracking-wide uppercase`}>
+          <h1 className="text-lg font-bold text-white tracking-tight break-words drop-shadow-sm">
+            {client.name}
+          </h1>
+          <p className={`text-xs font-semibold ${theme.accent} mt-0.5 break-words drop-shadow-sm uppercase tracking-wide`}>
             {client.subtitle}
           </p>
 
-          <div className="mb-4">
-            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold tracking-wider uppercase ${
-              isCardLocked && !isUnlockedByPin
-                ? 'bg-rose-500/10 border-rose-500/30 text-rose-400' 
-                : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-            }`}>
-              {isCardLocked && !isUnlockedByPin ? <Lock size={11} /> : <Unlock size={11} />}
-              <span>{isCardLocked && !isUnlockedByPin ? 'Protected Access' : 'Verified Member'}</span>
-            </div>
+          <div className="mt-4">
+            <button
+              onClick={() => setIsSaveModalOpen(true)}
+              className={`w-full py-2.5 rounded-xl text-xs font-bold ${theme.btnBg} shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.99]`}
+            >
+              <span>👤+</span> Save Contact
+            </button>
           </div>
 
-          <AnimatePresence mode="wait">
-            {!isContentVisible ? (
-              <motion.div 
-                key="protected-screen"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="w-full bg-slate-950/80 border border-slate-800 rounded-2xl p-4 my-1 flex flex-col items-center"
-              >
-                <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 mb-2 border border-purple-500/20">
-                  <ShieldAlert size={20} />
-                </div>
-                <h3 className="text-xs font-bold text-slate-100">Protected Card</h3>
-                <p className="text-[11px] text-slate-400 mb-3">Enter PIN code to view links.</p>
-
-                <form onSubmit={handlePinSubmit} className="w-full flex flex-col gap-2">
-                  <input 
-                    type="password"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={4}
-                    placeholder="••••"
-                    value={inputPin}
-                    onChange={handlePinChange}
-                    className="w-full px-3 py-2 text-center text-sm font-mono tracking-[0.4em] bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:border-purple-500 text-white placeholder:text-slate-600"
-                  />
-                  {errorMsg && <p className="text-[10px] text-rose-400 font-medium">Incorrect PIN code.</p>}
-                  
-                  <button 
-                    type="submit"
-                    className={`w-full py-2.5 rounded-xl text-xs font-bold text-white transition-all mt-1 cursor-pointer active:scale-98 ${theme.btnBg}`}
-                  >
-                    Unlock Profile
-                  </button>
-                </form>
-              </motion.div>
-            ) : (
-              <motion.div 
-                key="unlocked-screen"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="w-full flex flex-col items-center"
-              >
-                <button
-                  onClick={() => setIsSaveModalOpen(true)}
-                  className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold text-white transition-all shadow-md mb-3 cursor-pointer active:scale-98 transform-gpu ${theme.btnBg}`}
+          <div className="mt-4">
+            <AnimatePresence mode="wait">
+              {!isContentVisible ? (
+                <motion.div 
+                  key="protected-screen"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="w-full bg-slate-950/80 border border-slate-800 rounded-2xl p-4 my-1 flex flex-col items-center text-center"
                 >
-                  <Sparkles size={14} />
-                  <span>Save Contact Card</span>
-                  <UserPlus size={14} />
-                </button>
+                  <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 mb-2 border border-purple-500/20">
+                    <ShieldAlert size={20} />
+                  </div>
+                  <h3 className="text-xs font-bold text-slate-100">Protected Card</h3>
+                  <p className="text-[11px] text-slate-400 mb-3">Enter PIN code to view links.</p>
 
+                  <form onSubmit={handlePinSubmit} className="w-full flex flex-col gap-2">
+                    <input 
+                      type="password"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={4}
+                      placeholder="••••"
+                      value={inputPin}
+                      onChange={handlePinChange}
+                      className="w-full px-3 py-2 text-center text-sm font-mono tracking-[0.4em] bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:border-purple-500 text-white placeholder:text-slate-600"
+                    />
+                    {errorMsg && <p className="text-[10px] text-rose-400 font-medium">Incorrect PIN code.</p>}
+                    
+                    <button 
+                      type="submit"
+                      className={`w-full py-2.5 rounded-xl text-xs font-bold text-white transition-all mt-1 cursor-pointer active:scale-98 ${theme.btnBg}`}
+                    >
+                      Unlock Profile
+                    </button>
+                  </form>
+                </motion.div>
+              ) : (
                 <motion.div 
                   variants={linksListVariants}
                   initial="hidden"
                   animate="visible"
-                  className="w-full flex flex-col gap-2"
+                  className="w-full flex flex-col gap-2 text-left"
                 >
-                  {client.links.map((link: LinkItem, idx: number) => (
+                  {client.links.map((link: LinkItem, i: number) => (
                     <motion.a
-                      key={idx}
+                      key={i}
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       variants={linkItemVariants}
                       whileTap={{ scale: 0.98 }}
-                      className={`group flex items-center justify-between p-2.5 rounded-xl bg-slate-950/60 hover:bg-slate-800/80 border border-slate-800 ${theme.border} transition-colors transform-gpu`}
+                      className="w-full p-2.5 rounded-xl bg-slate-900/80 border border-slate-800/90 text-xs text-white flex items-center justify-between shadow-md transition-all hover:border-slate-700 transform-gpu"
                     >
-                      <div className="flex items-center gap-2.5">
-                        <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
-                          {getIcon(link.type)}
+                      <div className="flex items-center gap-2.5 truncate min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700/80 flex items-center justify-center text-xs shrink-0 text-slate-200 shadow-inner">
+                          {getIcon(link.name || link.type)}
                         </div>
-                        <div className="text-left">
-                          <p className="text-xs font-bold text-slate-200">
-                            {link.name}
-                          </p>
-                          <p className="text-[10px] text-slate-400">{link.detail}</p>
+                        <div className="truncate min-w-0">
+                          <div className="font-semibold text-white truncate">{link.name || 'Link'}</div>
+                          <div className="text-[11px] text-slate-400 truncate">{link.detail || link.url || '@username'}</div>
                         </div>
                       </div>
-                      <span className="text-slate-500 group-hover:text-slate-300 p-1">
-                        <ArrowUpRight size={15} />
+                      <span className={`text-[11px] ${theme.accent} font-medium shrink-0 ml-2 flex items-center gap-0.5`}>
+                        Visit <ArrowUpRight size={13} />
                       </span>
                     </motion.a>
                   ))}
                 </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              )}
+            </AnimatePresence>
+          </div>
 
-          <div className="mt-5 pt-3 border-t border-slate-800/60 w-full text-center flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-semibold tracking-wider uppercase">
-            <span>Mitsu Smart Card</span>
-            <span>•</span>
-            <span className="text-slate-600">Digital ID</span>
+          {/* Footer with Icon Logo and Powered by MSC */}
+          <div className="mt-5 pt-3 border-t border-slate-800/80 text-[10px] tracking-widest uppercase text-slate-400 font-bold flex items-center justify-center gap-1.5 shrink-0">
+            <img src="/icon.png" alt="Mitsu Icon" className="w-3.5 h-3.5 object-contain shrink-0" />
+            <span>Powered by MSC</span>
           </div>
 
         </div>
@@ -325,7 +300,7 @@ export default function ProfileCardClient({
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div 
               onClick={() => setIsSaveModalOpen(false)}
-              className="absolute inset-0 bg-slate-950/85"
+              className="absolute inset-0 bg-slate-950/85 backdrop-blur-sm"
             />
 
             <motion.div

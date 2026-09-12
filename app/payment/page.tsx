@@ -1,40 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { User, MessageCircle, Globe, Gamepad2, Swords, ExternalLink, ShieldCheck, Sparkles, ArrowRight } from 'lucide-react';
-
-const plainTheme = {
-  bg: "from-slate-900 via-slate-900 to-slate-950",
-  border: "border-slate-800 hover:border-slate-700",
-  accent: "text-slate-400",
-  avatarGlow: "from-slate-700 to-slate-800",
-};
-
-const themeStyles: Record<string, any> = {
-  indigo: { bg: "from-slate-950 via-indigo-950/90 to-slate-950", border: "border-indigo-500/40", accent: "text-indigo-400", avatarGlow: "from-indigo-500 to-blue-500" },
-  midnight: { bg: "from-slate-950 via-purple-950/90 to-slate-950", border: "border-purple-500/40", accent: "text-purple-400", avatarGlow: "from-purple-500 to-pink-500" },
-  emerald: { bg: "from-slate-950 via-emerald-950/90 to-slate-950", border: "border-emerald-500/40", accent: "text-emerald-400", avatarGlow: "from-emerald-500 to-teal-500" },
-  rose: { bg: "from-slate-950 via-rose-950/90 to-slate-950", border: "border-rose-500/40", accent: "text-rose-400", avatarGlow: "from-rose-500 to-pink-500" },
-  obsidian: { bg: "from-black via-zinc-950 to-black", border: "border-zinc-600/50", accent: "text-zinc-200", avatarGlow: "from-zinc-400 to-zinc-700" },
-};
-
-const getIcon = (type: string) => {
-  switch (type?.toLowerCase()) {
-    case 'instagram': return <User size={16} className="text-pink-400" />;
-    case 'facebook': return <MessageCircle size={16} className="text-blue-400" />;
-    case 'tiktok': return <Globe size={16} className="text-cyan-400" />;
-    case 'valorant': return <Gamepad2 size={16} className="text-red-400" />;
-    case 'league of legends':
-    case 'lol': return <Swords size={16} className="text-amber-400" />;
-    default: return <ExternalLink size={16} className="text-slate-400" />;
-  }
-};
+import { Sparkles, ArrowRight, ShieldCheck, ExternalLink, Smartphone } from 'lucide-react';
 
 export default function PaymentPage() {
   const [cardData, setCardData] = useState<any>(null);
-  const [selectedMethod, setSelectedMethod] = useState(false);
-  const [refNumber, setRefNumber] = useState('');
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [isPublished, setIsPublished] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('pending_mitsu_card');
@@ -43,75 +13,45 @@ export default function PaymentPage() {
     }
   }, []);
 
-  const currentTheme = (cardData?.theme && themeStyles[cardData.theme]) ? themeStyles[cardData.theme] : plainTheme;
-
-  const handleGcashRedirect = () => {
-    setSelectedMethod(true);
-    // GCash Express Send link format na may pre-filled na number at amount (₱499)
-    // Gamit ang GCash URL scheme / web payment bridge
-    const gcashDirectLink = "https://m.gcash.com/send?number=09949409150&amount=499"; 
-    window.open(gcashDirectLink, '_blank');
-  };
-
-  const handleVerifyAndPublish = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handlePayMongoCheckout = async () => {
     if (!cardData) return;
-    setIsVerifying(true);
+    setIsLoading(true);
 
-    setTimeout(async () => {
-      try {
-        const response = await fetch('/api/admin/client', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ clientId: cardData.clientId, clientData: cardData }),
-        });
+    try {
+      const res = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientData }),
+      });
 
-        if (response.ok) {
-          setIsVerifying(false);
-          setIsPublished(true);
-          localStorage.removeItem('pending_mitsu_card');
-        } else {
-          alert('Publishing failed. Please check server logs.');
-          setIsVerifying(false);
-        }
-      } catch (err) {
-        alert('Connection error occurred.');
-        setIsVerifying(false);
+      const data = await res.json();
+      if (data.checkoutUrl) {
+        localStorage.setItem('active_checkout_id', cardData.clientId);
+        window.location.href = data.checkoutUrl;
+      } else {
+        alert('Error initiating checkout. Please try again.');
+        setIsLoading(false);
       }
-    }, 2000);
+    } catch (err) {
+      alert('Connection error occurred.');
+      setIsLoading(false);
+    }
   };
-
-  if (isPublished) {
-    return (
-      <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
-        <div className="max-w-md bg-slate-900 border border-emerald-500/30 p-8 rounded-2xl shadow-2xl">
-          <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">✓</div>
-          <h1 className="text-2xl font-bold mb-2">Payment Verified & Published!</h1>
-          <p className="text-slate-400 text-sm mb-6">Your payment has been successfully confirmed. Your Mitsu Smart Card is now live[cite: 1]!</p>
-          <a href={`/${cardData?.clientId || ''}`} className="inline-block w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition-all">
-            View My Live Card 🚀
-          </a>
-        </div>
-      </main>
-    );
-  }
 
   if (!cardData) {
     return (
-      <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
-        <div className="max-w-md bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl flex flex-col items-center">
+      <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center antialiased">
+        <div className="max-w-md w-full bg-slate-900/90 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl shadow-2xl flex flex-col items-center transform transition-all duration-300">
           <div className="w-14 h-14 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-2xl flex items-center justify-center mb-4">
-            <Sparkles size={24} />
+            <Sparkles size={24} className="animate-pulse" />
           </div>
-          <h1 className="text-xl font-bold mb-2">No Preview Card Found</h1>
-          <p className="text-slate-400 text-xs sm:text-sm mb-6">
-            You haven't customized your digital profile card yet. Please create and customize your card first before proceeding to checkout.
-          </p>
+          <h1 className="text-xl font-bold mb-2 tracking-tight">No Preview Card Found</h1>
+          <p className="text-slate-400 text-sm mb-6 leading-relaxed">Please customize your card first in the client portal before checking out.</p>
           <a 
-            href="https://www.mitsu.cards/client-portal"
-            className="w-full py-3 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-500/25"
+            href="/client-portal" 
+            className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 active:scale-[0.98] transition-all duration-200 rounded-xl font-semibold shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
           >
-            <span>Let's Customize Your MSC</span>
+            <span>Go to Client Portal</span>
             <ArrowRight size={16} />
           </a>
         </div>
@@ -120,125 +60,63 @@ export default function PaymentPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white p-4 sm:p-8 flex flex-col items-center justify-center relative overflow-hidden">
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+    <main className="min-h-screen bg-slate-950 text-white p-4 sm:p-6 flex flex-col items-center justify-center relative overflow-hidden antialiased">
+      {/* Background Decorative Glow (GPU Accelerated) */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
+      <div className="absolute w-[280px] h-[280px] bg-indigo-600/20 rounded-full blur-3xl opacity-50 pointer-events-none transform-gpu animate-pulse" />
 
-      <div className="w-full max-w-4xl text-center mb-8 relative z-10">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-medium mb-2">
-          <Sparkles size={14} /> Secure Checkout
-        </span>
-        <h1 className="text-2xl sm:text-3xl font-bold">Your customized preview card will be ready in just a few minutes!</h1>
-        <p className="text-xs sm:text-sm text-slate-400 mt-1">Review your preview card below and click GCash to automatically generate your ₱499 payment[cite: 1].</p>
-      </div>
-
-      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-start relative z-10">
+      <div className="max-w-md w-full bg-slate-900/90 backdrop-blur-xl border border-slate-800/80 p-6 sm:p-8 rounded-3xl shadow-2xl text-center relative z-10 transition-all duration-300">
         
-        {/* LEFT COLUMN: EXACT LIVE PREVIEW CARD */}
-        <div className="flex flex-col items-center bg-slate-900/80 p-6 rounded-2xl border border-slate-800 shadow-xl">
-          <h2 className="text-xs uppercase tracking-widest text-indigo-400 font-bold mb-4 flex items-center gap-1.5">
-            <Sparkles size={14} /> Your Live Preview Card
-          </h2>
-
-          <div className={`w-full max-w-[300px] bg-gradient-to-b ${currentTheme.bg} border-2 ${currentTheme.border} rounded-3xl text-center shadow-2xl relative overflow-hidden backdrop-blur-md`}>
-            <div className="w-full h-24 relative overflow-hidden bg-slate-950 border-b border-white/10 flex items-start justify-between p-3">
-              {cardData.bannerUrl ? (
-                <img src={cardData.bannerUrl} alt="Banner" className="absolute inset-0 w-full h-full object-cover" />
-              ) : (
-                <div className={`absolute inset-0 bg-gradient-to-br ${currentTheme.avatarGlow} opacity-40`} />
-              )}
-              <div className="relative z-10 text-[10px] bg-slate-900/90 px-2 py-0.5 rounded-full text-slate-200">
-                {cardData.isLocked ? '🔒 Locked' : '🔓 Unlocked'}
-              </div>
-            </div>
-
-            <div className="p-4 pt-0 relative">
-              <div className={`relative -mt-10 w-20 h-20 rounded-full bg-gradient-to-tr ${currentTheme.avatarGlow} mx-auto mb-2 flex items-center justify-center text-xl font-bold text-white shadow-xl ring-4 ring-slate-900 overflow-hidden`}>
-                {cardData.avatarUrl ? (
-                  <img src={cardData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <span>{cardData.name?.[0] || 'M'}</span>
-                )}
-              </div>
-
-              <h1 className="text-base font-bold text-white">{cardData.name}</h1>
-              <p className={`text-xs font-semibold ${currentTheme.accent}`}>{cardData.subtitle}</p>
-
-              <div className="mt-3 flex flex-col gap-2 text-left">
-                {cardData.links?.map((l: any, i: number) => (
-                  <div key={i} className="p-2 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-white flex items-center justify-between">
-                    <div className="flex items-center gap-2 truncate">
-                      <div className="w-6 h-6 rounded bg-slate-800 flex items-center justify-center shrink-0">
-                        {getIcon(l.name)}
-                      </div>
-                      <div className="truncate">
-                        <div className="font-semibold">{l.name}</div>
-                        <div className="text-[10px] text-slate-400">{l.detail}</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-4 tracking-wide">
+          <Sparkles size={13} className="animate-spin" style={{ animationDuration: '4s' }} /> Secure Automated Checkout
         </div>
 
-        {/* RIGHT COLUMN: AUTOMATED GCASH REDIRECT */}
-        <div className="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 shadow-xl">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold">Package Total</h2>
-            <span className="text-xl font-black text-indigo-400">₱499</span>
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">Mitsu Smart Card</h1>
+        <p className="text-slate-400 text-sm mb-6">
+          Package Total: <span className="text-indigo-400 font-bold text-base">₱499</span>
+        </p>
+
+        {/* Live Preview Card Mini Container */}
+        <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 mb-6 flex items-center gap-3 text-left">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-500 to-blue-500 flex items-center justify-center text-lg font-bold shadow-md shrink-0 overflow-hidden">
+            {cardData.avatarUrl ? (
+              <img src={cardData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              <span>{cardData.name?.[0] || 'M'}</span>
+            )}
           </div>
-          <p className="text-xs text-slate-400 mb-6">Clicking the button below will automatically redirect you to GCash with the exact ₱499 amount[cite: 1].</p>
-
-          <div className="flex flex-col gap-3 mb-6">
-            <button 
-              type="button"
-              onClick={handleGcashRedirect}
-              className={`w-full p-4 rounded-xl font-semibold flex items-center justify-between transition-all cursor-pointer ${
-                selectedMethod ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25' : 'bg-blue-600/20 border border-blue-500/40 hover:bg-blue-600/30 text-blue-300'
-              }`}
-            >
-              <span className="flex items-center gap-2">📱 Pay ₱499 via GCash</span>
-              <span className="text-xs underline">Launch GCash ↗</span>
-            </button>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-sm font-bold text-white truncate">{cardData.name}</h3>
+            <p className="text-xs text-indigo-400 font-medium truncate">{cardData.subtitle || 'Digital Profile'}</p>
           </div>
+          <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium shrink-0">
+            Ready
+          </span>
+        </div>
 
-          {selectedMethod && (
-            <form onSubmit={handleVerifyAndPublish} className="flex flex-col gap-4 border-t border-slate-800 pt-4">
-              <div className="p-3 bg-blue-950/30 border border-blue-500/20 rounded-xl text-xs text-slate-300">
-                <p className="font-semibold text-blue-400 mb-1">Payment Instruction:</p>
-                <p>Complete your payment in the GCash app, then enter your transaction reference number below to publish your card instantly[cite: 1].</p>
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-slate-300">Enter your GCash Reference Number:</label>
-                <input 
-                  type="text" 
-                  value={refNumber} 
-                  onChange={(e) => setRefNumber(e.target.value)} 
-                  placeholder="e.g. 1029384756" 
-                  required 
-                  className="w-full px-3 py-2 mt-1 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white outline-none focus:border-indigo-500"
-                />
-              </div>
-
-              <button 
-                type="submit" 
-                disabled={isVerifying}
-                className="w-full py-3 bg-white text-black font-bold rounded-xl text-sm transition-all hover:bg-slate-200 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {isVerifying ? (
-                  <>Verifying Payment & Publishing...</>
-                ) : (
-                  <>
-                    <ShieldCheck size={16} /> Confirm Payment & Publish Card[cite: 1]
-                  </>
-                )}
-              </button>
-            </form>
+        {/* Lag-Free Mobile-Optimized Button */}
+        <button
+          onClick={handlePayMongoCheckout}
+          disabled={isLoading}
+          className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-[0.98] transition-all duration-150 ease-out text-white font-bold rounded-2xl shadow-xl shadow-blue-500/25 flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transform-gpu"
+        >
+          {isLoading ? (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <span>Redirecting to GCash...</span>
+            </div>
+          ) : (
+            <>
+              <Smartphone size={18} className="text-blue-200" />
+              <span>Pay ₱499 via GCash</span>
+              <ExternalLink size={16} className="text-blue-200 ml-0.5" />
+            </>
           )}
-        </div>
+        </button>
 
+        <p className="text-[11px] text-slate-500 mt-4 flex items-center justify-center gap-1.5">
+          <ShieldCheck size={13} className="text-emerald-400" /> Powered by PayMongo Secure Gateway
+        </p>
       </div>
     </main>
   );
