@@ -61,7 +61,6 @@ function ScrollReveal({
 export default function HomePage() {
   const productUrl = "https://www.mitsu.cards/product";
 
-  // Safe client-side mounting para maiwasan ang SSR/Hydration mismatch sa production
   const [isMounted, setIsMounted] = useState(false);
   const [introDone, setIntroDone] = useState(false);
   const [removeIntro, setRemoveIntro] = useState(false);
@@ -69,10 +68,12 @@ export default function HomePage() {
   useEffect(() => {
     setIsMounted(true);
 
+    // 1.2 seconds habang nakasarang card/box sa gitna bago umangat pataas
     const timer1 = setTimeout(() => {
       setIntroDone(true); 
     }, 1200);
 
+    // Tanggalin sa DOM ang intro overlay pagkatapos umangat
     const timer2 = setTimeout(() => {
       setRemoveIntro(true);
     }, 2200);
@@ -83,7 +84,6 @@ export default function HomePage() {
     };
   }, []);
 
-  // Habang nagloload sa server, huwag muna i-render ang intro para laging tugma sa client
   if (!isMounted) {
     return null;
   }
@@ -91,21 +91,21 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-between p-4 sm:p-8 relative overflow-hidden">
       
-      {/* Intro Overlay Background */}
+      {/* Close and Slide-Up Cinematic Intro Overlay */}
       {!removeIntro && (
-        <div className={`fixed inset-0 z-50 bg-[#090d16] flex flex-col items-center justify-center p-6 text-center transition-all duration-1000 ease-in-out ${introDone ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}>
-          
-          <div className={`relative flex flex-col items-center transition-all duration-700 ${introDone ? 'scale-95 opacity-0 translate-y-[-40px]' : 'scale-100 opacity-100'}`}>
-            
-            {/* Mitsu Smart Card Typography with Smooth Pulse Animation */}
-            <div className="relative py-2 inline-block animate-pulse">
-              <h1 className="text-3xl sm:text-5xl font-black tracking-tight bg-gradient-to-r from-purple-400 via-pink-500 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(168,85,247,0.4)]">
-                Mitsu Smart Card
-              </h1>
-              {/* Static Glowing Underline para sigurado na lilitaw sa production */}
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
-            </div>
+        <div className={`fixed inset-0 z-50 bg-[#090d16] flex items-center justify-center transition-all duration-1000 ease-[cubic-bezier(0.77,0,0.175,1)] ${
+          introDone ? '-translate-y-full opacity-90' : 'translate-y-0 opacity-100'
+        }`}>
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
+          {/* Nakasarang box sa simula na mag-e-expand at aangat pataas */}
+          <div className={`relative flex flex-col items-center text-center p-8 transition-all duration-700 ${
+            introDone ? 'scale-105 opacity-0 translate-y-[-30px]' : 'scale-95 opacity-100 translate-y-0'
+          }`}>
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tight bg-gradient-to-r from-purple-400 via-pink-500 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(168,85,247,0.4)]">
+              Mitsu Smart Card
+            </h1>
+            <div className="w-20 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mt-3 shadow-[0_0_10px_rgba(168,85,247,0.8)] mx-auto" />
           </div>
         </div>
       )}
