@@ -68,15 +68,15 @@ export default function HomePage() {
   useEffect(() => {
     setIsMounted(true);
 
-    // 1.2 seconds habang nakasarang card/box sa gitna bago umangat pataas
+    // Pinabagal natin nang konti para mas sakto at hindi mabilis sa mobile (1.8 seconds)
     const timer1 = setTimeout(() => {
       setIntroDone(true); 
-    }, 1200);
+    }, 1800);
 
-    // Tanggalin sa DOM ang intro overlay pagkatapos umangat
+    // Tanggalin sa DOM ang intro overlay pagkatapos ng 2.8 seconds
     const timer2 = setTimeout(() => {
       setRemoveIntro(true);
-    }, 2200);
+    }, 2800);
 
     return () => {
       clearTimeout(timer1);
@@ -91,15 +91,14 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-between p-4 sm:p-8 relative overflow-hidden">
       
-      {/* Close and Slide-Up Cinematic Intro Overlay */}
+      {/* Cinematic Intro Overlay na may mas pino at tamang bilis */}
       {!removeIntro && (
-        <div className={`fixed inset-0 z-50 bg-[#090d16] flex items-center justify-center transition-all duration-1000 ease-[cubic-bezier(0.77,0,0.175,1)] ${
+        <div className={`fixed inset-0 z-50 bg-[#090d16] flex items-center justify-center transition-all duration-1200 ease-[cubic-bezier(0.77,0,0.175,1)] ${
           introDone ? '-translate-y-full opacity-90' : 'translate-y-0 opacity-100'
         }`}>
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
-          {/* Nakasarang box sa simula na mag-e-expand at aangat pataas */}
-          <div className={`relative flex flex-col items-center text-center p-8 transition-all duration-700 ${
+          <div className={`relative flex flex-col items-center text-center p-8 transition-all duration-900 ${
             introDone ? 'scale-105 opacity-0 translate-y-[-30px]' : 'scale-95 opacity-100 translate-y-0'
           }`}>
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight bg-gradient-to-r from-purple-400 via-pink-500 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(168,85,247,0.4)]">
@@ -148,16 +147,16 @@ export default function HomePage() {
 
       </div>
 
-      {/* How It Works Section */}
+      {/* How It Works Section (Independent Scroll Reveal) */}
       <div className="max-w-4xl w-full my-16 relative z-10">
-        <ScrollReveal delay={200}>
+        <ScrollReveal delay={100} triggered={true}>
           <h2 className="text-2xl font-bold text-center text-slate-100 mb-8">
             How It Works
           </h2>
         </ScrollReveal>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <ScrollReveal delay={350}>
+          <ScrollReveal delay={200} triggered={true}>
             <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl text-center hover:border-slate-700 transition">
               <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 font-bold flex items-center justify-center mx-auto mb-4 border border-purple-500/20">1</div>
               <h3 className="font-semibold text-sm text-slate-200">Tap the Card</h3>
@@ -165,7 +164,7 @@ export default function HomePage() {
             </div>
           </ScrollReveal>
 
-          <ScrollReveal delay={500}>
+          <ScrollReveal delay={350} triggered={true}>
             <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl text-center hover:border-slate-700 transition">
               <div className="w-10 h-10 rounded-xl bg-pink-500/10 text-pink-400 font-bold flex items-center justify-center mx-auto mb-4 border border-pink-500/20">2</div>
               <h3 className="font-semibold text-sm text-slate-200">Open Notification</h3>
@@ -173,7 +172,7 @@ export default function HomePage() {
             </div>
           </ScrollReveal>
 
-          <ScrollReveal delay={650}>
+          <ScrollReveal delay={500} triggered={true}>
             <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl text-center hover:border-slate-700 transition">
               <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 font-bold flex items-center justify-center mx-auto mb-4 border border-cyan-500/20">3</div>
               <h3 className="font-semibold text-sm text-slate-200">Save & Connect</h3>
@@ -183,16 +182,16 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Why Choose Mitsu Card Section */}
+      {/* Why Choose Mitsu Card Section (Independent Scroll Reveal) */}
       <div className="max-w-4xl w-full mb-16 relative z-10">
-        <ScrollReveal delay={200}>
+        <ScrollReveal delay={100} triggered={true}>
           <h2 className="text-2xl font-bold text-center text-slate-100 mb-8">
             Why Choose Mitsu Smart Card?
           </h2>
         </ScrollReveal>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <ScrollReveal delay={350}>
+          <ScrollReveal delay={200} triggered={true}>
             <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 text-center transition-all duration-200 hover:border-purple-500/40">
               <Smartphone size={28} className="text-purple-400 mx-auto mb-3" />
               <h3 className="font-semibold text-base text-slate-200 mb-1">One Tap Share</h3>
@@ -200,7 +199,7 @@ export default function HomePage() {
             </div>
           </ScrollReveal>
 
-          <ScrollReveal delay={500}>
+          <ScrollReveal delay={350} triggered={true}>
             <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 text-center transition-all duration-200 hover:border-pink-500/40">
               <CreditCard size={28} className="text-pink-400 mx-auto mb-3" />
               <h3 className="font-semibold text-base text-slate-200 mb-1">Custom Designs</h3>
@@ -208,7 +207,7 @@ export default function HomePage() {
             </div>
           </ScrollReveal>
 
-          <ScrollReveal delay={650}>
+          <ScrollReveal delay={500} triggered={true}>
             <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 text-center transition-all duration-200 hover:border-cyan-500/40">
               <Share2 size={28} className="text-cyan-400 mx-auto mb-3" />
               <h3 className="font-semibold text-base text-slate-200 mb-1">Update Anytime</h3>
@@ -218,15 +217,15 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Supported Platforms Grid */}
+      {/* Supported Platforms Grid (Independent Scroll Reveal) */}
       <div className="max-w-3xl w-full my-8 text-center relative z-10">
-        <ScrollReveal delay={200}>
+        <ScrollReveal delay={100} triggered={true}>
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-4">
             Supported Integration Profiles
           </p>
         </ScrollReveal>
         
-        <ScrollReveal delay={350}>
+        <ScrollReveal delay={250} triggered={true}>
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
             {['Instagram', 'TikTok', 'Facebook', 'Twitter','LinkedIn', 'YouTube', 'Spotify', 'Discord', 'Steam', ' + ', 'Custom Link'].map((platform, i) => (
               <span 
