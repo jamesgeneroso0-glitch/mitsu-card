@@ -46,7 +46,7 @@ function ScrollReveal({
   return (
     <div
       ref={ref}
-      className={`transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+      className={`transition-all duration-1000 ease-out ${
         (isVisible && triggered)
           ? "opacity-100 translate-y-0 scale-100" 
           : "opacity-0 translate-y-12 scale-95 pointer-events-none"
@@ -61,20 +61,21 @@ function ScrollReveal({
 export default function HomePage() {
   const productUrl = "https://www.mitsu.cards/product";
 
-  // Intro states para sa Smooth Slide-Up Animation
+  // Safe client-side mounting para maiwasan ang SSR/Hydration mismatch sa production
+  const [isMounted, setIsMounted] = useState(false);
   const [introDone, setIntroDone] = useState(false);
   const [removeIntro, setRemoveIntro] = useState(false);
 
   useEffect(() => {
-    // 1.3 seconds para sa intro text at underline animation bago umangat
+    setIsMounted(true);
+
     const timer1 = setTimeout(() => {
       setIntroDone(true); 
-    }, 1300);
+    }, 1200);
 
-    // Tanggalin sa DOM ang intro pagkatapos umangat
     const timer2 = setTimeout(() => {
       setRemoveIntro(true);
-    }, 2300);
+    }, 2200);
 
     return () => {
       clearTimeout(timer1);
@@ -82,41 +83,32 @@ export default function HomePage() {
     };
   }, []);
 
+  // Habang nagloload sa server, huwag muna i-render ang intro para laging tugma sa client
+  if (!isMounted) {
+    return null;
+  }
+
   return (
     <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-between p-4 sm:p-8 relative overflow-hidden">
       
-      {/* Intro Overlay Background (Solid Color na may Smooth Slide-Up) */}
+      {/* Intro Overlay Background */}
       {!removeIntro && (
-        <div className={`fixed inset-0 z-50 bg-[#090d16] flex flex-col items-center justify-center p-6 text-center transition-all duration-1000 ease-[cubic-bezier(0.77,0,0.175,1)] ${introDone ? '-translate-y-full opacity-90' : 'translate-y-0 opacity-100'}`}>
+        <div className={`fixed inset-0 z-50 bg-[#090d16] flex flex-col items-center justify-center p-6 text-center transition-all duration-1000 ease-in-out ${introDone ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}>
           
           <div className={`relative flex flex-col items-center transition-all duration-700 ${introDone ? 'scale-95 opacity-0 translate-y-[-40px]' : 'scale-100 opacity-100'}`}>
             
-            {/* Mitsu Smart Card Typography with Custom Underline Animation */}
-            <div className="relative py-2 inline-block">
+            {/* Mitsu Smart Card Typography with Smooth Pulse Animation */}
+            <div className="relative py-2 inline-block animate-pulse">
               <h1 className="text-3xl sm:text-5xl font-black tracking-tight bg-gradient-to-r from-purple-400 via-pink-500 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(168,85,247,0.4)]">
                 Mitsu Smart Card
               </h1>
-              {/* Saktong Animated Underline Bar na hindi sakop ang buong lapad */}
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-[underlineGrow_1s_ease-out_forwards]" />
+              {/* Static Glowing Underline para sigurado na lilitaw sa production */}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
             </div>
 
           </div>
         </div>
       )}
-
-      {/* Global CSS para sa Underline Growth Animation */}
-      <style jsx global>{`
-        @keyframes underlineGrow {
-          0% {
-            width: 0%;
-            opacity: 0;
-          }
-          100% {
-            width: 65%;
-            opacity: 1;
-          }
-        }
-      `}</style>
 
       {/* Background Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
@@ -124,28 +116,24 @@ export default function HomePage() {
       {/* Hero Section */}
       <div className="max-w-4xl text-center mt-8 sm:mt-16 relative z-10 flex flex-col items-center">
         
-        {/* Badge */}
         <ScrollReveal delay={300} triggered={introDone}>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 text-xs sm:text-sm font-medium mb-6 drop-shadow-[0_2px_8px_rgba(168,85,247,0.2)]">
             <Sparkles size={14} className="animate-pulse" /> Next-Gen NFC Smart Cards
           </div>
         </ScrollReveal>
         
-        {/* Main Title */}
         <ScrollReveal delay={450} triggered={introDone}>
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-tight text-slate-100 mb-4">
             Connect effortlessly with <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(192,38,211,0.35)]">Mitsu Smart Card</span>
           </h1>
         </ScrollReveal>
 
-        {/* Subtitle */}
         <ScrollReveal delay={600} triggered={introDone}>
           <p className="text-slate-400 text-base sm:text-lg mb-8 max-w-xl mx-auto">
             Share your socials, portfolio, contact details, and gaming profiles with just a single tap.
           </p>
         </ScrollReveal>
 
-        {/* Action Button */}
         <ScrollReveal delay={750} triggered={introDone}>
           <a 
             href={productUrl}
