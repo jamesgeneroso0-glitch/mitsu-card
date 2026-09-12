@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { 
   Sparkles, 
@@ -33,7 +34,7 @@ function ScrollReveal({
           observer.disconnect();
         }
       },
-      { threshold: 0.05 } // Ibinaba natin ang threshold para mas mabilis masalo ng mobile screen
+      { threshold: 0.05 }
     );
 
     if (ref.current) {
@@ -62,23 +63,37 @@ export default function HomePage() {
   const productUrl = "https://www.mitsu.cards/product";
 
   const [isMounted, setIsMounted] = useState(false);
+  const [isReady, setIsReady] = useState(false); // Blank background muna bago mag-entry
   const [introDone, setIntroDone] = useState(false);
   const [removeIntro, setRemoveIntro] = useState(false);
+  const [animateText, setAnimateText] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
 
-    // 1.8 seconds bago umangat ang intro
+    // 1. Blangkong background muna sa unang 300ms para sa mobile stability
+    const blankTimer = setTimeout(() => {
+      setIsReady(true);
+    }, 300);
+
+    // 2. Sunod na aandar ang text animations sa loob ng intro
+    const textTimer = setTimeout(() => {
+      setAnimateText(true);
+    }, 600);
+
+    // 3. Pagkatapos ay aakyat na ang intro overlay
     const timer1 = setTimeout(() => {
       setIntroDone(true); 
-    }, 1800);
+    }, 2200);
 
-    // Tanggalin sa DOM ang intro overlay pagkatapos ng 2.8 seconds
+    // 4. Tuluyang tatanggalin sa DOM ang intro overlay
     const timer2 = setTimeout(() => {
       setRemoveIntro(true);
-    }, 2800);
+    }, 3200);
 
     return () => {
+      clearTimeout(blankTimer);
+      clearTimeout(textTimer);
       clearTimeout(timer1);
       clearTimeout(timer2);
     };
@@ -91,21 +106,59 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-between p-4 sm:p-8 relative overflow-hidden">
       
-      {/* Cinematic Intro Overlay */}
+      {/* Cinematic Intro Overlay na may Blank Start Buffer */}
       {!removeIntro && (
-        <div className={`fixed inset-0 z-50 bg-[#090d16] flex items-center justify-center transition-all duration-1200 ease-[cubic-bezier(0.77,0,0.175,1)] ${
-          introDone ? '-translate-y-full opacity-90' : 'translate-y-0 opacity-100'
+        <div className={`fixed inset-0 z-50 bg-[#070913] flex items-center justify-center transition-all duration-1200 ease-[cubic-bezier(0.77,0,0.175,1)] ${
+          introDone ? '-translate-y-full opacity-100' : 'translate-y-0 opacity-100'
         }`}>
+          {/* Ambient Purple Glow */}
+          <div className="absolute w-96 h-96 bg-purple-600/25 rounded-full blur-[100px] pointer-events-none animate-pulse" />
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
-          <div className={`relative flex flex-col items-center text-center p-8 transition-all duration-900 ${
-            introDone ? 'scale-105 opacity-0 translate-y-[-30px]' : 'scale-95 opacity-100 translate-y-0'
-          }`}>
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight bg-gradient-to-r from-purple-400 via-pink-500 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(168,85,247,0.4)]">
-              Mitsu Smart Card
-            </h1>
-            <div className="w-20 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mt-3 shadow-[0_0_10px_rgba(168,85,247,0.8)] mx-auto" />
-          </div>
+          {/* Intro Content Container (Lilitaw lang kapag tapos na ang blank palugit) */}
+          {isReady && (
+            <div className={`relative flex flex-col items-center text-center p-6 transition-all duration-1000 ${
+              introDone ? 'scale-105 opacity-0' : 'scale-100 opacity-100'
+            }`}>
+              
+              {/* Logo and Brand Name Wrapper */}
+              <div className="flex flex-col items-center gap-4">
+                
+                {/* Logo */}
+                <div className={`relative p-2.5 rounded-2xl bg-purple-950/40 border border-purple-500/30 shadow-[0_0_25px_rgba(168,85,247,0.3)] backdrop-blur-md transition-all duration-700 ease-out ${
+                  animateText ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-50 translate-y-4'
+                }`}>
+                  <Image 
+                    src="/icon.png" 
+                    alt="Mitsu Logo" 
+                    width={48} 
+                    height={48} 
+                    priority
+                    className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.5)] rounded-xl" 
+                  />
+                </div>
+
+                {/* Tagline */}
+                <span className={`text-[10px] sm:text-xs font-mono uppercase tracking-[0.3em] text-purple-400/80 transition-all duration-700 delay-150 ease-out ${
+                  animateText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
+                }`}>
+                  Digital NFC Experience
+                </span>
+
+                {/* Pangalan */}
+                <h1 className={`text-3xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-white via-purple-200 to-pink-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(168,85,247,0.5)] transition-all duration-700 delay-300 ease-out ${
+                  animateText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                }`}>
+                  Mitsu Smart Card
+                </h1>
+              </div>
+
+              {/* Glowing Accent Line */}
+              <div className={`w-36 h-[2px] bg-gradient-to-r from-transparent via-purple-500 to-transparent mt-6 shadow-[0_0_15px_rgba(168,85,247,0.9)] mx-auto transition-all duration-700 delay-450 ease-out ${
+                animateText ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
+              }`} />
+            </div>
+          )}
         </div>
       )}
 
